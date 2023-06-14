@@ -2,12 +2,16 @@ import 'bootstrap';
 import './styles.scss';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
 import './index.css';
 import App from './App.js';
+import store from './slices/index.js';
+import './i18next.js';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const mountNode = document.getElementById('chat');
+const root = ReactDOM.createRoot(mountNode);
 root.render(
-  <React.StrictMode>
+  <Provider store={store}>
     <App />
-  </React.StrictMode>,
+  </Provider>,
 );

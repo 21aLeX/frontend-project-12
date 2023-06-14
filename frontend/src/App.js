@@ -64,36 +64,32 @@ const AuthButton = () => {
 const App = () => (
   <AuthProvider>
     <BrowserRouter>
-      <div className="h-100">
-        <div className="h-100" id="chat">
-          <div className="d-flex flex-column h-100">
-            <Navbar
-              variant="light"
-              bg="white"
-              className="shadow-sm"
-              expand="lg"
-            >
-              <div className="container">
-                <Navbar.Brand as={Link} to="/">Hexlet Chat</Navbar.Brand>
-                <AuthButton />
-              </div>
-            </Navbar>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={(
-                  <ChatRoute>
-                    <Chat />
-                  </ChatRoute>
-                )}
-              />
-              <Route path="*" element={<Page404 />} />
-            </Routes>
+      <div className="d-flex flex-column h-100">
+        <Navbar
+          variant="light"
+          bg="white"
+          className="shadow-sm"
+          expand="lg"
+        >
+          <div className="container">
+            <Navbar.Brand as={Link} to="/">Hexlet Chat</Navbar.Brand>
+            <AuthButton />
           </div>
-          <div className="Toastify" />
-        </div>
+        </Navbar>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={(
+              <ChatRoute>
+                <Chat />
+              </ChatRoute>
+            )}
+          />
+          <Route path="*" element={<Page404 />} />
+        </Routes>
       </div>
+      <div className="Toastify" />
     </BrowserRouter>
   </AuthProvider>
 );

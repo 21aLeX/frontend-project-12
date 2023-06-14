@@ -35,6 +35,7 @@ const generateOnSubmit = (
     auth.logIn();
     navigate('/');
     window.localStorage.setItem('userId', JSON.stringify(data));
+    window.localStorage.setItem('username', JSON.stringify(username));
   })
   .catch((error) => {
     setStatus(true);
@@ -42,7 +43,6 @@ const generateOnSubmit = (
 
 const LoginForm = () => {
   const [status, setStatus] = useState(false);
-  // const location = useLocation();
   const navigate = useNavigate();
   const auth = useAuth();
   const inputUserName = useRef();
