@@ -32,7 +32,7 @@ const renderModal = ({ modalInfo, hideModal, setItems }) => {
   }
 
   const Component = getModal(modalInfo.type);
-  return <Component modalInfo={modalInfo} setItems={setItems} onHide={hideModal} />;
+  return <Component className="modal-dialog-centered" modalInfo={modalInfo} setItems={setItems} onHide={hideModal} />;
 };
 
 const Modal = (props) => {

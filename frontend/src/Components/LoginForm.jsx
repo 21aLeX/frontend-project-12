@@ -3,17 +3,13 @@ import { Form } from 'react-bootstrap';
 import {
   useEffect, useRef, useState,
 } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import routes from '../hooks/routes.js';
 import useAuth from '../hooks/index.jsx';
 
-Yup.setLocale({
-  mixed: {
-    required: 'Заполните это поле.',
-  },
-});
 const signupSchema = Yup.object().shape({
   username: Yup.string()
     .required(),
@@ -42,6 +38,7 @@ const generateOnSubmit = (
   });
 
 const LoginForm = () => {
+  const { t, i18n } = useTranslation();
   const [status, setStatus] = useState(false);
   const navigate = useNavigate();
   const auth = useAuth();
@@ -55,7 +52,6 @@ const LoginForm = () => {
     validationSchema: signupSchema,
     onSubmit: generateOnSubmit(setStatus, auth, navigate),
   });
-  // window.localStorage.removeItem('userId');
   useEffect(() => {
     inputUserName.current.focus();
   }, []);
@@ -98,7 +94,7 @@ const LoginForm = () => {
           <Form.Label htmlFor="password">
             Пароль
           </Form.Label>
-          <div className="invalid-tooltip">Неверные имя пользователя или пароль</div>
+          <Form.Control.Feedback className="invalid-tooltip" tooltip>{t('invalidLoginPassword')}</Form.Control.Feedback>
         </div>
         <button
           type="submit"

@@ -1,30 +1,28 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, FormGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 import { removeChannel, setCurrentChannelId } from '../slices/slice';
 
 const socket = io('ws://localhost:5001');
-const generateOnSubmit = ({ onHide }, { id }) => (e) => {
+const generateOnSubmit = ({ onHide }, { id }, setStatusButton) => (e) => {
   e.preventDefault();
-  socket.emit('removeChannel', { id }, ({ status: s, data }) => {
-    // console.log(s);
-  });
-  // setItems((items) => items.filter((i) => i.id !== modalInfo.item.id));
+  setStatusButton(true);
+  socket.emit('removeChannel', { id });
+  setStatusButton(false);
   onHide();
 };
 
 const Remove = (props) => {
+  const [statusButton, setStatusButton] = useState(false);
   const { modalInfo: { item } } = props;
   const dataChat = useSelector((state) => state.data.data);
-  // console.log(item);
   const { onHide } = props;
   const dispatch = useDispatch();
-  const onSubmit = generateOnSubmit(props, item);
+  const onSubmit = generateOnSubmit(props, item, setStatusButton);
   useEffect(() => {
     socket.off('removeChannel');
     socket.on('removeChannel', (channel) => {
-      // console.log(channel.id);
       dispatch(removeChannel(channel.id));
       if (channel.id === dataChat.currentChannelId) {
         dispatch(setCurrentChannelId(1));
@@ -32,7 +30,7 @@ const Remove = (props) => {
     });
   });
   return (
-    <Modal show>
+    <Modal show centered onHide={onHide}>
       <Modal.Header closeButton onHide={onHide}>
         <Modal.Title>Удалить канал</Modal.Title>
       </Modal.Header>
@@ -43,7 +41,7 @@ const Remove = (props) => {
           <FormGroup>
             <div className="d-flex justify-content-end mt-2">
               <button onClick={onHide} type="button" className="btn btn-secondary me-2" data-dismiss="modal">Отменить</button>
-              <input type="submit" className="btn btn-danger" value="Удалить" />
+              <input disabled={statusButton} type="submit" className="btn btn-danger" value="Удалить" />
             </div>
           </FormGroup>
         </form>
@@ -53,4 +51,3 @@ const Remove = (props) => {
 };
 
 export default Remove;
-// END

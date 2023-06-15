@@ -1,11 +1,11 @@
 import axios from 'axios';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { io } from 'socket.io-client';
 import { useFormik } from 'formik';
 import { Form } from 'react-bootstrap';
 import routes from '../hooks/routes.js';
-import { setData, addMessage, setCurrentChannelId } from '../slices/slice.js';
+import { setData, addMessage } from '../slices/slice.js';
 import Modal from '../modals/Modal.jsx';
 import Channels from './Channels.jsx';
 
@@ -13,18 +13,11 @@ const socket = io('ws://localhost:5001');
 const getAuthHeader = () => {
   const usetId = localStorage.getItem('userId');
   const { token, username } = JSON.parse(usetId);
-
   if (username && token) {
     return { headers: { Authorization: `Bearer ${token}` }, username };
   }
-
   return {};
 };
-// const sendMessage = () => ({ message }, { resetForm }) => {
-//   console.log(message);
-//   socket.emit('newMessage', { message });
-//   // resetForm({ message: '' });
-// };
 
 const Chat = () => {
   const dataChat = useSelector((state) => state.data.data);
@@ -55,12 +48,9 @@ const Chat = () => {
       const { headers, username } = getAuthHeader();
       const { data } = await axios.get(routes.usersPath(), { headers });
       dispatch(setData({ ...data, username }));
-      // console.log(username);
     };
     fetchContent();
   }, []);
-  console.log(dataChat);
-  console.log(dataChat.currentChannelId);
 
   return (
     <div className="container h-100 my-4 overflow-hidden rounded shadow">

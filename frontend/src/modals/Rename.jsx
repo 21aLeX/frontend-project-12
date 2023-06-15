@@ -1,89 +1,86 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormik } from 'formik';
-import { Modal, FormGroup, FormControl } from 'react-bootstrap';
+import * as Yup from 'yup';
+import { Modal, Form } from 'react-bootstrap';
 import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { renameChannel } from '../slices/slice';
 
 const socket = io('ws://localhost:5001');
-const generateOnSubmit = (onHide, channels, setStatus) => ({ name, id }) => {
-  // setItems((items) => {
-  try {
-    const isIncludes = channels.filter(({ name: n }) => name === n).length > 0;
-    console.log(isIncludes);
-    if (name.length < 3) {
-      setStatus('minSize');
-    } else if (isIncludes) {
-      setStatus('include');
-    } else if (!isIncludes) {
-      socket.emit('renameChannel', { id, name }, ({ status: s, data }) => {
-        // console.log(s);
-      });
-      onHide();
-    }
-  } catch (error) {
-    console.log(error);
-  }
-  //   const item = items.find((i) => i.id === modalInfo.item.id);
-  //   item.body = values.body;
-  // });
-  // onHide();
-};
 
 const Rename = (props) => {
-  const [status, setStatus] = useState('');
-  // console.log(props);
+  const [statusButton, setStatusButton] = useState(false);
   const dispatch = useDispatch();
+  const inputRef = useRef();
   const dataChat = useSelector((state) => state.data.data);
   const { channels } = dataChat;
   const { onHide, modalInfo } = props;
   const { t, i18n } = useTranslation();
   const { item } = modalInfo;
   const formik = useFormik({
+    validationSchema: Yup.object().shape({
+      name: Yup.string().required(t('onblur')).min(3, t('minSize')).max(20, t('minSize')),
+    }),
     initialValues: {
       name: item.name,
       id: item.id,
     },
-    onSubmit: generateOnSubmit(onHide, channels, setStatus),
+    initialErrors: {},
+    initialTouched: {},
+    onSubmit: async ({ name, id }) => {
+      setStatusButton(true);
+      try {
+        const isIncludes = channels.filter(({ name: n }) => name === n).length > 0;
+        if (isIncludes) {
+          formik.errors.name = t('include');
+        } else if (!isIncludes) {
+          socket.emit('renameChannel', { id, name });
+          onHide();
+        }
+        setStatusButton(false);
+      } catch (error) {
+        console.log(error);
+      }
+    },
   });
-  const inputRef = useRef();
   useEffect(() => {
     inputRef.current.select();
     socket.off('renameChannel');
     socket.on('renameChannel', (channel) => {
-      // console.log('socket');
-      // dispatch(setCurrentChannelId(channel.id));
-      // console.log(s);
-      console.log(channel);
       dispatch(renameChannel(channel));
     });
   }, []);
 
   return (
-    <Modal show>
+    <Modal show centered onHide={onHide}>
       <Modal.Header closeButton onHide={onHide}>
         <Modal.Title>Rename</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
         <form onSubmit={formik.handleSubmit}>
-          <FormGroup>
-            <FormControl
-              required
+          <div>
+            <Form.Control
               ref={inputRef}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
+              onChange={formik.handleChange('name')}
               value={formik.values.name}
-              data-testid="input-body"
+              data-testid="input-name"
               name="name"
-              isInvalid={
-                status !== ''
-              }
+              id="name"
+              isInvalid={formik.errors.name && formik.touched.name}
             />
-            <div className="invalid-feedback">{t(status)}</div>
-          </FormGroup>
-          <input type="submit" className="btn btn-primary mt-2" value="submit" />
+            <Form.Label htmlFor="name" className="visually-hidden">
+              Имя канала
+            </Form.Label>
+            {formik.errors.name && formik.touched.name ? (
+              <Form.Control.Feedback className="invalid-feedback">{formik.errors.name}</Form.Control.Feedback>
+            ) : null}
+          </div>
+          <div className="d-flex justify-content-end mt-2">
+            <button onClick={onHide} type="button" className="btn btn-secondary me-2" data-dismiss="modal">Отменить</button>
+            <input disabled={statusButton} type="submit" className="btn btn-primary" value="Отправить" />
+          </div>
         </form>
       </Modal.Body>
     </Modal>
@@ -91,4 +88,3 @@ const Rename = (props) => {
 };
 
 export default Rename;
-// END

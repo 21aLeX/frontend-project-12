@@ -15,6 +15,7 @@ import Login from './Components/Login.jsx';
 import AuthContext from './contexts/index.jsx';
 import Chat from './Components/Chat.jsx';
 import useAuth from './hooks/index.jsx';
+import Signup from './Components/Signup.jsx';
 
 const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -78,6 +79,7 @@ const App = () => (
         </Navbar>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route
             path="/"
             element={(
