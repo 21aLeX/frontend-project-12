@@ -1,17 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import LoginForm from './LoginForm';
 import image from '../image.jpg';
 
 const Login = () => {
-  const state = {
-    // loginForm: {
-    //   state: 'valid',
-    //   data: {
-    //     username: '',
-    //     password: '',
-    //   },
-    //   errors: [],
-    // },
-  };
+  const { t, i18n } = useTranslation();
   return (
     <div className="container-fluid h-100">
       <div className="row justify-content-center align-content-center h-100">
@@ -30,10 +22,10 @@ const Login = () => {
             <div className="card-footer p-4">
               <div className="text-center">
                 <span>
-                  Нет аккаунта?
+                  {t('interface.noAccount')}
                 </span>
                 <a href="/signup">
-                  Регистрация
+                  {t('interface.signup')}
                 </a>
               </div>
             </div>

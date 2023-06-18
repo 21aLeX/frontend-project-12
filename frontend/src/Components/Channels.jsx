@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import { useTranslation } from 'react-i18next';
 import { setCurrentChannelId } from '../slices/slice.js';
 import Modal from '../modals/Modal.jsx';
 
@@ -6,6 +7,7 @@ const handleChannels = (id, dispatch) => (e) => {
   dispatch(setCurrentChannelId(id));
 };
 const Channels = (props) => {
+  const { t } = useTranslation();
   const { value: { dataChat, dispatch } } = props;
   return (
     <ul id="channels-box" className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
@@ -21,6 +23,7 @@ const Channels = (props) => {
                     'w-100',
                     'rounded-0',
                     'text-start',
+                    'text-truncate',
                     'btn',
                     { 'btn-secondary': dataChat.currentChannelId === channel.id },
                   )
@@ -42,58 +45,20 @@ const Channels = (props) => {
                         cn(
                           'flex-grow-0',
                           'dropdown-toggle',
-                          'dropdown',
+                          'dropdown-toggle-split',
                           'btn',
                           { 'btn-secondary': dataChat.currentChannelId === channel.id },
                         )
                       }
                     >
-                      {/* <span className="visually-hidden">
-                        Управление каналом
-                      </span>
-                    </button>
-
-                    <button type="button" className="btn btn-sm btn-secondary
-                    // dropdown-toggle dropdown-toggle-split" data-bs-toggle="
-                    // dropdown" aria-expanded="false"> */}
-                      <span className="visually-hidden">Управление каналом</span>
+                      <span className="visually-hidden">{t('interface.controlChannels')}</span>
                     </button>
                     <div
                       className="dropdown-menu"
                     >
-
                       <Modal value={{ channel }} />
                     </div>
                   </>
-                  //       <div
-                  //     x-placement="bottom-end"
-                  //   aria-labelledby="react-aria1550855742-1"
-                  //   className="dropdown-menu show"
-                  //   data-popper-reference-hidden="false"
-                  //   data-popper-escaped="false"
-                  //   data-popper-placement="bottom-end"
-                  //   style="position: absolute; inset: 0px 0px auto auto;
-                  // transform: translate3d(0px, 40px, 0px);"
-                  //     >
-                  //   <a
-                  //     data-rr-ui-dropdown-item=""
-                  //     class="dropdown-item"
-                  //     role="button"
-                  //     tabindex="0"
-                  //     href="#"
-                  //   >
-                  //     Удалить
-                  //   </a>
-                  //   <a
-                  //     data-rr-ui-dropdown-item=""
-                  //     class="dropdown-item"
-                  //     role="button"
-                  //     tabindex="0"
-                  //     href="#"
-                  //   >
-                  //     Переименовать
-                  //   </a>
-                  // </div>
                 ) : ''
               }
             </div>

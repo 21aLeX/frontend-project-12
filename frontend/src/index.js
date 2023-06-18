@@ -3,7 +3,6 @@ import './styles.scss';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import './index.css';
 import App from './App.js';
 import store from './slices/index.js';
 import './i18next.js';

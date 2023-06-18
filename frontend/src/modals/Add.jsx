@@ -5,12 +5,15 @@ import { Modal, Form } from 'react-bootstrap';
 import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import { useRollbar } from '@rollbar/react';
 import { addChannel, setCurrentChannelId } from '../slices/slice';
 
 const socket = io('ws://localhost:5001');
 const Add = (props) => {
+  const rollbar = useRollbar();
   const [statusButton, setStatusButton] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const inputRef = useRef();
   const { onHide } = props;
   const dataChat = useSelector((state) => state.data.data);
@@ -18,28 +21,32 @@ const Add = (props) => {
   const dispatch = useDispatch();
   const formik = useFormik({
     validationSchema: Yup.object().shape({
-      body: Yup.string().required(t('onblur')).min(3, t('minSize')).max(20, t('minSize')),
+      name: Yup.string().required(t('onblur')).min(3, t('minSize')).max(20, t('minSize')),
     }),
     initialValues: {
-      body: '',
+      name: '',
     },
     initialErrors: {},
     initialTouched: {},
-    onSubmit: async ({ body }, { resetForm }) => {
+    onSubmit: async ({ name }, { resetForm }) => {
       setStatusButton(true);
       try {
-        const isIncludes = channels.filter(({ name }) => name === body).length > 0;
-        // ума не приложу как по другому реализовать(
+        const isIncludes = channels.filter(({ nameChanel }) => nameChanel === name).length > 0;
+        // ума не приложу как по другому реализовать проверку наличия уже такого названия канала(
         if (isIncludes) {
-          formik.errors.body = t('include');
+          formik.errors.name = t('include');
         } else if (!isIncludes) {
-          socket.emit('newChannel', { name: body, removable: true }, ({ status: s, data }) => {
+          socket.emit('newChannel', { name, removable: true }, ({ status: s, data }) => {
+            if (s !== 'ok') {
+              toast.error(t('notifications.networkError'));
+            }
           });
-          resetForm({ body: '' });
+          resetForm({ name: '' });
           onHide();
         }
         setStatusButton(false);
       } catch (error) {
+        rollbar.error('Error set new channel', error);
         console.log(error);
       }
     },
@@ -49,15 +56,18 @@ const Add = (props) => {
     socket.off('newChannel');
     socket.on('newChannel', (channel) => {
       console.log('socket');
+      toast.success(t('notifications.channelCreated'));
       dispatch(setCurrentChannelId(channel.id));
       dispatch(addChannel(channel));
     });
-  });
+  }, []);
 
   return (
     <Modal show centered onHide={onHide}>
       <Modal.Header closeButton onHide={onHide}>
-        <Modal.Title>Добавить канал</Modal.Title>
+        <Modal.Title>
+          {t('interface.addChannel')}
+        </Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -65,22 +75,25 @@ const Add = (props) => {
           <div>
             <Form.Control
               ref={inputRef}
-              onChange={formik.handleChange('body')}
-              value={formik.values.body}
-              data-testid="input-body"
-              name="body"
-              isInvalid={formik.errors.body && formik.touched.body}
+              onChange={formik.handleChange('name')}
+              value={formik.values.name}
+              className="mb-2 form-control"
+              name="name"
+              id="name"
+              isInvalid={formik.errors.name && formik.touched.name}
             />
-            <Form.Label htmlFor="body" className="visually-hidden">
-              Имя канала
+            <Form.Label htmlFor="name" className="visually-hidden">
+              {t('interface.nameChannel')}
             </Form.Label>
-            {formik.errors.body && formik.touched.body ? (
-              <Form.Control.Feedback className="invalid-feedback">{formik.errors.body}</Form.Control.Feedback>
+            {formik.errors.name && formik.touched.name ? (
+              <Form.Control.Feedback className="invalid-feedback">{formik.errors.name}</Form.Control.Feedback>
             ) : null}
           </div>
           <div className="d-flex justify-content-end mt-2">
-            <button onClick={onHide} type="button" className="btn btn-secondary me-2" data-dismiss="modal">Отменить</button>
-            <input disabled={statusButton} type="submit" className="btn btn-primary" value="Отправить" />
+            <button onClick={onHide} type="button" className="btn btn-secondary me-2">
+              {t('interface.cancel')}
+            </button>
+            <button disabled={statusButton} type="submit" className="btn btn-primary">{t('interface.send')}</button>
           </div>
         </form>
       </Modal.Body>
@@ -89,4 +102,3 @@ const Add = (props) => {
 };
 
 export default Add;
-// END

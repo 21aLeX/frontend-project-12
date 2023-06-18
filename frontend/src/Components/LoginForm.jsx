@@ -57,52 +57,52 @@ const LoginForm = () => {
   }, []);
   return (
     <form className="col-12 col-md-6 mt-3 mt-mb-0" onSubmit={formik.handleSubmit}>
-      <Form.Group>
-        <h1 className="text-center mb-4">Войти</h1>
-        <div className="form-floating mb-3">
-          <Form.Control
-            ref={inputUserName}
-            name="username"
-            autoComplete="username"
-            required
-            placeholder="Ваш ник"
-            id="username"
-            type="username"
-            className="form-control"
-            onChange={formik.handleChange}
-            value={formik.values.username}
-            isInvalid={status}
-          />
-          <Form.Label htmlFor="username">
-            Ваш ник
-          </Form.Label>
-        </div>
-        <div className="form-floating mb-4">
-          <Form.Control
-            ref={inputUserPassword}
-            name="password"
-            autoComplete="current-password"
-            required
-            placeholder="Пароль"
-            type="password"
-            id="password"
-            className="form-control"
-            onChange={formik.handleChange}
-            value={formik.values.password}
-            isInvalid={status}
-          />
-          <Form.Label htmlFor="password">
-            Пароль
-          </Form.Label>
+      <h1 className="text-center mb-4">
+        {t('interface.entry')}
+      </h1>
+      <div className="form-floating mb-3">
+        <Form.Control
+          ref={inputUserName}
+          name="username"
+          autoComplete="username"
+          required
+          placeholder={t('interface.nick')}
+          id="username"
+          type="username"
+          onChange={formik.handleChange}
+          value={formik.values.username}
+          isInvalid={status}
+        />
+        <Form.Label htmlFor="username">
+          {t('interface.nick')}
+        </Form.Label>
+      </div>
+      <div className="form-floating mb-4">
+        <Form.Control
+          ref={inputUserPassword}
+          name="password"
+          autoComplete="current-password"
+          required
+          placeholder={t('interface.password')}
+          type="password"
+          id="password"
+          onChange={formik.handleChange}
+          value={formik.values.password}
+          isInvalid={status}
+        />
+        <Form.Label htmlFor="password">
+          {t('interface.password')}
+        </Form.Label>
+        {status ? (
           <Form.Control.Feedback className="invalid-tooltip" tooltip>{t('invalidLoginPassword')}</Form.Control.Feedback>
-        </div>
-        <button
-          type="submit"
-          className="w-100 mb-3 btn btn-outline-primary"
-        >
-          Войти
-        </button>
-      </Form.Group>
+        ) : null}
+      </div>
+      <button
+        type="submit"
+        className="w-100 mb-3 btn btn-outline-primary"
+      >
+        {t('interface.entry')}
+      </button>
     </form>
   );
 };
