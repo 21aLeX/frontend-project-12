@@ -109,14 +109,11 @@ const LoginForm = () => {
           {t('interface.password')}
         </Form.Label>
 
-        <Form.Control.Feedback
-          type="invalid"
-          className="invalid-feedback"
-        >
+        <div type="invalid" className="invalid-tooltip">
           {status
             ? t('invalidLoginPassword')
             : null}
-        </Form.Control.Feedback>
+        </div>
       </Form.Group>
       <button
         type="submit"
