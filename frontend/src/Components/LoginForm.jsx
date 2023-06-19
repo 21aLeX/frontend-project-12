@@ -28,17 +28,17 @@ const generateOnSubmit = (
         username,
         password,
       })
+      // .catch((error) => {
+      //   // setStatus(true);
+      // })
       .then((response) => {
         setStatus(false);
-        resetForm();
+        // resetForm();
         const { data } = response;
         auth.logIn();
         navigate('/');
         window.localStorage.setItem('userId', JSON.stringify(data));
         window.localStorage.setItem('username', JSON.stringify(username));
-      })
-      .catch((error) => {
-        setStatus(true);
       });
   } catch (error) {
     setStatus(true);
