@@ -71,10 +71,10 @@ const LoginForm = () => {
             username,
             password,
           });
-        auth.logIn();
-        navigate('/');
         window.localStorage.setItem('userId', JSON.stringify(data));
         window.localStorage.setItem('username', JSON.stringify(username));
+        auth.logIn();
+        navigate('/');
       } catch (error) {
         if (error.isAxiosError && error.response.status === 401) {
           console.log('error');
@@ -125,7 +125,7 @@ const LoginForm = () => {
         </Form.Label>
         {status
           ? (
-            <Form.Control.Feedback className="invalid-tooltip">
+            <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip>
               {t('invalidLoginPassword')}
             </Form.Control.Feedback>
           )
