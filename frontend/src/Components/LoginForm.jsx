@@ -44,8 +44,10 @@ const generateOnSubmit = (
     //       .catch ((error) => {
     // });
   } catch (error) {
-    console.log('error');
-    setStatus(true);
+    if (error.isAxiosError && error.response.status === 401) {
+      console.log('error');
+      setStatus(true);
+    }
   }
 };
 
