@@ -28,9 +28,6 @@ const generateOnSubmit = (
         username,
         password,
       })
-      // .catch((error) => {
-      //   // setStatus(true);
-      // })
       .then((response) => {
         setStatus(false);
         resetForm();
@@ -39,6 +36,8 @@ const generateOnSubmit = (
         navigate('/');
         window.localStorage.setItem('userId', JSON.stringify(data));
         window.localStorage.setItem('username', JSON.stringify(username));
+      })
+      .catch((error) => {
       });
   } catch (error) {
     setStatus(true);
