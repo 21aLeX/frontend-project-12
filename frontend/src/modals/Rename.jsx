@@ -64,7 +64,7 @@ const Rename = (props) => {
     } catch (error) {
       rollbar.error('Error rename channel', error);
     }
-  }, []);
+  });
 
   return (
     <Modal show centered onHide={onHide}>

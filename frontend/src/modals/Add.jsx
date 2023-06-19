@@ -61,7 +61,7 @@ const Add = (props) => {
       dispatch(setCurrentChannelId(channel.id));
       dispatch(addChannel(channel));
     });
-  }, []);
+  });
 
   return (
     <Modal show centered onHide={onHide}>

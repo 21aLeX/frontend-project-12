@@ -44,7 +44,7 @@ const Remove = (props) => {
     } catch (error) {
       rollbar.error('Error remove message', error);
     }
-  }, []);
+  });
   return (
     <Modal show centered onHide={onHide}>
       <Modal.Header closeButton onHide={onHide}>
