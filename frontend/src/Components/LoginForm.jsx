@@ -76,11 +76,11 @@ const LoginForm = () => {
         window.localStorage.setItem('userId', JSON.stringify(data));
         window.localStorage.setItem('username', JSON.stringify(username));
       } catch (error) {
-        if (error.isAxiosError && error.response.status === 401) {
-          console.log('error');
-          inputUserName.current.focus();
-          setStatus(true);
-        }
+        // if (error.isAxiosError && error.response.status === 401) {
+        console.log('error');
+        inputUserName.current.focus();
+        setStatus(true);
+        // }
       }
     },
   });
