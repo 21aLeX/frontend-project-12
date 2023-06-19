@@ -3,7 +3,7 @@ import LoginForm from './LoginForm';
 import image from '../image.jpg';
 
 const Login = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="container-fluid h-100">
       <div className="row justify-content-center align-content-center h-100">

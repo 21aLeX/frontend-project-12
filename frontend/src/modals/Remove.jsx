@@ -12,7 +12,7 @@ const socket = io();
 const generateOnSubmit = ({ onHide }, { id }, setStatusButton, t, rollbar) => (e) => {
   e.preventDefault();
   setStatusButton(true);
-  socket.emit('removeChannel', { id }, ({ status: s, data }) => {
+  socket.emit('removeChannel', { id }, ({ status: s }) => {
     if (s !== 'ok') {
       toast.error(t('notifications.networkError'));
       rollbar.error('Error network remove message', s);

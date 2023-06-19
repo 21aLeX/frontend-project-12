@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { setCurrentChannelId } from '../slices/slice.js';
 import Modal from '../modals/Modal.jsx';
 
-const handleChannels = (id, dispatch) => (e) => {
+const handleChannels = (id, dispatch) => () => {
   dispatch(setCurrentChannelId(id));
 };
 const Channels = (props) => {

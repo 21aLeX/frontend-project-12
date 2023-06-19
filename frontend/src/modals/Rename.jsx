@@ -38,7 +38,7 @@ const Rename = (props) => {
         if (isIncludes) {
           formik.errors.name = t('include');
         } else if (!isIncludes) {
-          socket.emit('renameChannel', { id, name }, ({ status: s, data }) => {
+          socket.emit('renameChannel', { id, name }, ({ status: s }) => {
             if (s !== 'ok') {
               toast.error(t('notifications.errors'));
               rollbar.error('Error network rename channel', s);

@@ -1,5 +1,4 @@
 import { useFormik } from 'formik';
-import { io } from 'socket.io-client';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useRef, useState } from 'react';
@@ -29,13 +28,13 @@ const generateOnSubmit = (
       window.localStorage.setItem('userId', JSON.stringify(data));
       window.localStorage.setItem('username', JSON.stringify(username));
     })
-    .catch((error) => {
+    .catch(() => {
       setStatusSignup(true);
     });
 };
 
 const Signup = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [statusSignup, setStatusSignup] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();

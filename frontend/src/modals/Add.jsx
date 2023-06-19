@@ -37,7 +37,7 @@ const Add = (props) => {
         if (isIncludes) {
           formik.errors.name = t('include');
         } else if (!isIncludes) {
-          socket.emit('newChannel', { name, removable: true }, ({ status: s, data }) => {
+          socket.emit('newChannel', { name, removable: true }, ({ status: s }) => {
             if (s !== 'ok') {
               toast.error(t('notifications.networkError'));
             }

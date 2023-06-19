@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import svg404 from '../404.svg';
 
 const Page404 = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="text-center">
       <img
