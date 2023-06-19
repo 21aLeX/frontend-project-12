@@ -61,7 +61,7 @@ const LoginForm = () => {
   }, []);
   useEffect(() => {
     setStatus(false);
-  }, [formik.values.password]);
+  }, [formik.values.username]);
   return (
     <form className="col-12 col-md-6 mt-3 mt-mb-0" onSubmit={formik.handleSubmit}>
       <h1 className="text-center mb-4">
@@ -100,7 +100,6 @@ const LoginForm = () => {
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-        {status ? console.log(t('invalidLoginPassword')) : null}
         <Form.Control.Feedback className="invalid-tooltip" tooltip>{status ? t('invalidLoginPassword') : null}</Form.Control.Feedback>
 
       </div>
