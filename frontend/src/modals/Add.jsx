@@ -61,7 +61,8 @@ const Add = (props) => {
       dispatch(setCurrentChannelId(channel.id));
       dispatch(addChannel(channel));
     });
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Modal show centered onHide={onHide}>

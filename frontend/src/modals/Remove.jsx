@@ -44,7 +44,8 @@ const Remove = (props) => {
     } catch (error) {
       rollbar.error('Error remove message', error);
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Modal show centered onHide={onHide}>
       <Modal.Header closeButton onHide={onHide}>

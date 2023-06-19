@@ -64,7 +64,8 @@ const Rename = (props) => {
     } catch (error) {
       rollbar.error('Error rename channel', error);
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Modal show centered onHide={onHide}>
