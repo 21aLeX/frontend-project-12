@@ -63,16 +63,34 @@ const LoginForm = () => {
       username: '',
       password: '',
     },
-    // validationSchema: signupSchema,
-    onSubmit: generateOnSubmit(setStatus, auth, navigate),
+    onSubmit: async ({ username, password }) => {
+      setStatus(false);
+      try {
+        const { data } = await axios
+          .post(routes.loginPath(), {
+            username,
+            password,
+          });
+        auth.logIn();
+        navigate('/');
+        window.localStorage.setItem('userId', JSON.stringify(data));
+        window.localStorage.setItem('username', JSON.stringify(username));
+      } catch (error) {
+        if (error.isAxiosError && error.response.status === 401) {
+          console.log('error');
+          inputUserName.current.focus();
+          setStatus(true);
+        }
+      }
+    },
   });
   useEffect(() => {
     setStatus(false);
     inputUserName.current.focus();
   }, []);
-  useEffect(() => {
-    setStatus(false);
-  }, [formik.values.username]);
+  // useEffect(() => {
+  //   setStatus(false);
+  // }, [formik.values.username]);
   return (
     <form className="col-12 col-md-6 mt-3 mt-mb-0" onSubmit={formik.handleSubmit}>
       <h1 className="text-center mb-4">
