@@ -9,8 +9,8 @@ import { toast } from 'react-toastify';
 import { useRollbar } from '@rollbar/react';
 import { renameChannel } from '../slices/slice';
 
-const socket = io('ws://localhost:5001');
-
+const socket = io();
+// const socket = io('ws://localhost:5001');
 const Rename = (props) => {
   const rollbar = useRollbar();
   const [statusButton, setStatusButton] = useState(false);

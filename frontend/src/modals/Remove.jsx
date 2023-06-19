@@ -7,7 +7,8 @@ import { toast } from 'react-toastify';
 import { useRollbar } from '@rollbar/react';
 import { removeChannel, setCurrentChannelId } from '../slices/slice';
 
-const socket = io('ws://localhost:5001');
+const socket = io();
+// const socket = io('ws://localhost:5001');
 const generateOnSubmit = ({ onHide }, { id }, setStatusButton, t, rollbar) => (e) => {
   e.preventDefault();
   setStatusButton(true);
