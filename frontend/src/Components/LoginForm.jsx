@@ -38,6 +38,7 @@ const generateOnSubmit = (
         window.localStorage.setItem('username', JSON.stringify(username));
       })
       .catch((error) => {
+        setStatus(true);
       });
   } catch (error) {
     setStatus(true);
@@ -101,7 +102,7 @@ const LoginForm = () => {
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-        {/* {status ? console.log(t('invalidLoginPassword')) : null}s */}
+        {status ? console.log(t('invalidLoginPassword')) : null}
         {status
           ? (
             <Form.Control.Feedback className="invalid-tooltip" tooltip>
