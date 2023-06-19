@@ -10,35 +10,38 @@ import { useTranslation } from 'react-i18next';
 import routes from '../hooks/routes.js';
 import useAuth from '../hooks/index.jsx';
 
-const signupSchema = Yup.object().shape({
-  username: Yup.string()
-    .required(),
-  password: Yup.string()
-    .required(),
-});
+// const signupSchema = Yup.object().shape({
+//   username: Yup.string()
+//     .required(),
+//   password: Yup.string()
+//     .required(),
+// });
 const generateOnSubmit = (
   setStatus,
   auth,
   navigate,
-) => ({ username, password }) => axios
-  .post(routes.loginPath(), {
-    username,
-    password,
-  })
-  .then((response) => {
-    setStatus(false);
-    const { data } = response;
-    auth.logIn();
-    navigate('/');
-    window.localStorage.setItem('userId', JSON.stringify(data));
-    window.localStorage.setItem('username', JSON.stringify(username));
-  })
-  .catch((error) => {
-    setStatus(true);
-  });
+) => ({ username, password }) => {
+  setStatus(false);
+  axios
+    .post(routes.loginPath(), {
+      username,
+      password,
+    })
+    .then((response) => {
+      setStatus(false);
+      const { data } = response;
+      auth.logIn();
+      navigate('/');
+      window.localStorage.setItem('userId', JSON.stringify(data));
+      window.localStorage.setItem('username', JSON.stringify(username));
+    })
+    .catch((error) => {
+      setStatus(true);
+    });
+};
 
 const LoginForm = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [status, setStatus] = useState(false);
   const navigate = useNavigate();
   const auth = useAuth();
@@ -49,12 +52,16 @@ const LoginForm = () => {
       username: '',
       password: '',
     },
-    validationSchema: signupSchema,
+    // validationSchema: signupSchema,
     onSubmit: generateOnSubmit(setStatus, auth, navigate),
   });
   useEffect(() => {
+    setStatus(false);
     inputUserName.current.focus();
   }, []);
+  useEffect(() => {
+    setStatus(false);
+  }, [formik.values.password]);
   return (
     <form className="col-12 col-md-6 mt-3 mt-mb-0" onSubmit={formik.handleSubmit}>
       <h1 className="text-center mb-4">
@@ -93,7 +100,7 @@ const LoginForm = () => {
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-
+        {status ? console.log(t('invalidLoginPassword')) : null}
         <Form.Control.Feedback className="invalid-tooltip" tooltip>{status ? t('invalidLoginPassword') : null}</Form.Control.Feedback>
 
       </div>
