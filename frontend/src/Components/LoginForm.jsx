@@ -108,12 +108,13 @@ const LoginForm = () => {
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-
-        <div type="invalid" className="invalid-tooltip">
-          {status
-            ? t('invalidLoginPassword')
-            : null}
-        </div>
+        {status
+          ? (
+            <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip value={t('invalidLoginPassword')}>
+              {t('invalidLoginPassword')}
+            </Form.Control.Feedback>
+          )
+          : null}
       </Form.Group>
       <button
         type="submit"
