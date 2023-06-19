@@ -63,7 +63,9 @@ const LoginForm = () => {
           console.log('error');
           inputUserName.current.focus();
           setStatus(true);
+          return;
         }
+        throw error;
       }
     },
   });
