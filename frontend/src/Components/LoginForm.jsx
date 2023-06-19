@@ -102,7 +102,7 @@ const LoginForm = () => {
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-        {status ? console.log(t('invalidLoginPassword')) : null}
+        {/* {status ? console.log(t('invalidLoginPassword')) : null}s */}
         {status
           ? (
             <Form.Control.Feedback className="invalid-tooltip" tooltip>
