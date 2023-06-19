@@ -125,7 +125,7 @@ const LoginForm = () => {
         </Form.Label>
         {status
           ? (
-            <Form.Control.Feedback className="invalid-tooltip" tooltip>
+            <Form.Control.Feedback className="invalid-tooltip">
               {t('invalidLoginPassword')}
             </Form.Control.Feedback>
           )
