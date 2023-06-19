@@ -109,7 +109,10 @@ const LoginForm = () => {
           {t('interface.password')}
         </Form.Label>
 
-        <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip>
+        <Form.Control.Feedback
+          type="invalid"
+          className="invalid-feedback"
+        >
           {status
             ? t('invalidLoginPassword')
             : null}
