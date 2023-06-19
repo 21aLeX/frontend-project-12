@@ -4,35 +4,10 @@ import {
   useEffect, useRef, useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import routes from '../hooks/routes.js';
 import useAuth from '../hooks/index.jsx';
-
-// const generateOnSubmit = (
-//   setStatus,
-//   auth,
-//   navigate,
-// ) => async ({ username, password }, { resetForm }) => {
-//   setStatus(false);
-//   try {
-//     const { data } = await axios
-//       .post(routes.loginPath(), {
-//         username,
-//         password,
-//       });
-//     auth.logIn();
-//     navigate('/');
-//     window.localStorage.setItem('userId', JSON.stringify(data));
-//     window.localStorage.setItem('username', JSON.stringify(username));
-//   } catch (error) {
-//     if (error.isAxiosError && error.response.status === 401) {
-//       console.log('error');
-//       setStatus(true);
-//     }
-//   }
-// };
 
 const LoginForm = () => {
   const { t } = useTranslation();
@@ -70,7 +45,6 @@ const LoginForm = () => {
     },
   });
   useEffect(() => {
-    // setStatus(false);
     inputUserName.current.focus();
   }, []);
   return (
@@ -110,7 +84,7 @@ const LoginForm = () => {
         </Form.Label>
         {status
           ? (
-            <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip value={t('invalidLoginPassword')}>
+            <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip>
               {t('invalidLoginPassword')}
             </Form.Control.Feedback>
           )

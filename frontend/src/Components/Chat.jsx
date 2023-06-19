@@ -13,8 +13,9 @@ import { setData, addMessage } from '../slices/slice.js';
 import Modal from '../modals/Modal.jsx';
 import Channels from './Channels.jsx';
 
-const socket = io('ws://localhost:5001');
-filter.loadDictionary('ru');
+// const socket = io('ws://localhost:5001');
+const socket = io();
+// filter.loadDictionary('ru');
 const getAuthHeader = () => {
   const usetId = localStorage.getItem('userId');
   const { token, username } = JSON.parse(usetId);
@@ -122,7 +123,7 @@ const Chat = () => {
             </div>
             <div className="mt-auto px-5 py-3">
               <form noValidate="" className="py-1 border rounded-2" onSubmit={formik.handleSubmit}>
-                <div className="input-group has-validation">
+                <Form.Group className="input-group has-validation">
                   <Form.Control
                     ref={inputBody}
                     onChange={formik.handleChange}
@@ -140,7 +141,7 @@ const Chat = () => {
                       {t('interface.send', { count })}
                     </span>
                   </button>
-                </div>
+                </Form.Group>
               </form>
             </div>
           </div>
