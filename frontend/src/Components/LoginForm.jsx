@@ -10,46 +10,29 @@ import { useTranslation } from 'react-i18next';
 import routes from '../hooks/routes.js';
 import useAuth from '../hooks/index.jsx';
 
-// const signupSchema = Yup.object().shape({
-//   username: Yup.string()
-//     .required(),
-//   password: Yup.string()
-//     .required(),
-// });
-const generateOnSubmit = (
-  setStatus,
-  auth,
-  navigate,
-) => async ({ username, password }, { resetForm }) => {
-  setStatus(false);
-  try {
-    const { data } = await axios
-      .post(routes.loginPath(), {
-        username,
-        password,
-      });
-    auth.logIn();
-    navigate('/');
-    window.localStorage.setItem('userId', JSON.stringify(data));
-    window.localStorage.setItem('username', JSON.stringify(username));
-    // .then((response) => {
-    //   setStatus(false);
-    //   resetForm();
-    // const { data } = response;
-    //   auth.logIn();
-    //   navigate('/');
-    //   window.localStorage.setItem('userId', JSON.stringify(data));
-    //   window.localStorage.setItem('username', JSON.stringify(username));
-    // })
-    //       .catch ((error) => {
-    // });
-  } catch (error) {
-    if (error.isAxiosError && error.response.status === 401) {
-      console.log('error');
-      setStatus(true);
-    }
-  }
-};
+// const generateOnSubmit = (
+//   setStatus,
+//   auth,
+//   navigate,
+// ) => async ({ username, password }, { resetForm }) => {
+//   setStatus(false);
+//   try {
+//     const { data } = await axios
+//       .post(routes.loginPath(), {
+//         username,
+//         password,
+//       });
+//     auth.logIn();
+//     navigate('/');
+//     window.localStorage.setItem('userId', JSON.stringify(data));
+//     window.localStorage.setItem('username', JSON.stringify(username));
+//   } catch (error) {
+//     if (error.isAxiosError && error.response.status === 401) {
+//       console.log('error');
+//       setStatus(true);
+//     }
+//   }
+// };
 
 const LoginForm = () => {
   const { t } = useTranslation();
@@ -93,7 +76,7 @@ const LoginForm = () => {
       <h1 className="text-center mb-4">
         {t('interface.entry')}
       </h1>
-      <div className="form-floating mb-3">
+      <Form.Group className="form-floating mb-3">
         <Form.Control
           ref={inputUserName}
           name="username"
@@ -107,8 +90,8 @@ const LoginForm = () => {
         <Form.Label htmlFor="username">
           {t('interface.nick')}
         </Form.Label>
-      </div>
-      <div className="form-floating mb-4">
+      </Form.Group>
+      <Form.Group className="form-floating mb-4">
         <Form.Control
           ref={inputUserPassword}
           name="password"
@@ -129,7 +112,7 @@ const LoginForm = () => {
             ? t('invalidLoginPassword')
             : null}
         </Form.Control.Feedback>
-      </div>
+      </Form.Group>
       <button
         type="submit"
         className="w-100 mb-3 btn btn-outline-primary"
