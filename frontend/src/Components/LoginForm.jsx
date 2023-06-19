@@ -116,6 +116,7 @@ const LoginForm = () => {
       <button
         type="submit"
         className="w-100 mb-3 btn btn-outline-primary"
+        onClick={formik.handleSubmit}
       >
         {t('interface.entry')}
       </button>
