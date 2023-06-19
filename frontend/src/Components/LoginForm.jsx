@@ -22,23 +22,26 @@ const generateOnSubmit = (
   navigate,
 ) => async ({ username, password }, { resetForm }) => {
   setStatus(false);
-  await axios
-    .post(routes.loginPath(), {
-      username,
-      password,
-    })
-    .then((response) => {
-      setStatus(false);
-      resetForm();
-      const { data } = response;
-      auth.logIn();
-      navigate('/');
-      window.localStorage.setItem('userId', JSON.stringify(data));
-      window.localStorage.setItem('username', JSON.stringify(username));
-    })
-    .catch((error) => {
-      setStatus(true);
-    });
+  try {
+    await axios
+      .post(routes.loginPath(), {
+        username,
+        password,
+      })
+      .then((response) => {
+        setStatus(false);
+        resetForm();
+        const { data } = response;
+        auth.logIn();
+        navigate('/');
+        window.localStorage.setItem('userId', JSON.stringify(data));
+        window.localStorage.setItem('username', JSON.stringify(username));
+      })
+      .catch((error) => {
+      });
+  } catch (error) {
+    setStatus(true);
+  }
 };
 
 const LoginForm = () => {
@@ -74,7 +77,6 @@ const LoginForm = () => {
           name="username"
           autoComplete="username"
           required
-          placeholder={t('interface.nick')}
           id="username"
           onChange={formik.handleChange}
           value={formik.values.username}
@@ -90,7 +92,6 @@ const LoginForm = () => {
           name="password"
           autoComplete="current-password"
           required
-          placeholder={t('interface.password')}
           type="password"
           id="password"
           onChange={formik.handleChange}
@@ -100,6 +101,7 @@ const LoginForm = () => {
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
+        {/* {status ? console.log(t('invalidLoginPassword')) : null}s */}
         {status
           ? (
             <Form.Control.Feedback className="invalid-tooltip" tooltip>
