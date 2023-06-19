@@ -20,15 +20,16 @@ const generateOnSubmit = (
   setStatus,
   auth,
   navigate,
-) => ({ username, password }) => {
+) => async ({ username, password }, { resetForm }) => {
   setStatus(false);
-  axios
+  await axios
     .post(routes.loginPath(), {
       username,
       password,
     })
     .then((response) => {
       setStatus(false);
+      resetForm();
       const { data } = response;
       auth.logIn();
       navigate('/');
@@ -75,7 +76,6 @@ const LoginForm = () => {
           required
           placeholder={t('interface.nick')}
           id="username"
-          type="username"
           onChange={formik.handleChange}
           value={formik.values.username}
           isInvalid={status}
@@ -100,8 +100,13 @@ const LoginForm = () => {
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-        <Form.Control.Feedback className="invalid-tooltip" tooltip>{status ? t('invalidLoginPassword') : null}</Form.Control.Feedback>
-
+        {status
+          ? (
+            <Form.Control.Feedback className="invalid-tooltip" tooltip>
+              {t('invalidLoginPassword')}
+            </Form.Control.Feedback>
+          )
+          : null}
       </div>
       <button
         type="submit"
