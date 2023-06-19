@@ -123,13 +123,12 @@ const LoginForm = () => {
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-        {status
-          ? (
-            <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip>
-              {t('invalidLoginPassword')}
-            </Form.Control.Feedback>
-          )
-          : null}
+
+        <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip>
+          {status
+            ? t('invalidLoginPassword')
+            : null}
+        </Form.Control.Feedback>
       </div>
       <button
         type="submit"
