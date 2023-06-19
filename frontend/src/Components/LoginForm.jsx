@@ -23,23 +23,28 @@ const generateOnSubmit = (
 ) => async ({ username, password }, { resetForm }) => {
   setStatus(false);
   try {
-    await axios
+    const { data } = await axios
       .post(routes.loginPath(), {
         username,
         password,
-      })
-      .then((response) => {
-        setStatus(false);
-        resetForm();
-        const { data } = response;
-        auth.logIn();
-        navigate('/');
-        window.localStorage.setItem('userId', JSON.stringify(data));
-        window.localStorage.setItem('username', JSON.stringify(username));
-      })
-      .catch((error) => {
       });
+    auth.logIn();
+    navigate('/');
+    window.localStorage.setItem('userId', JSON.stringify(data));
+    window.localStorage.setItem('username', JSON.stringify(username));
+    // .then((response) => {
+    //   setStatus(false);
+    //   resetForm();
+    // const { data } = response;
+    //   auth.logIn();
+    //   navigate('/');
+    //   window.localStorage.setItem('userId', JSON.stringify(data));
+    //   window.localStorage.setItem('username', JSON.stringify(username));
+    // })
+    //       .catch ((error) => {
+    // });
   } catch (error) {
+    console.log('error');
     setStatus(true);
   }
 };
