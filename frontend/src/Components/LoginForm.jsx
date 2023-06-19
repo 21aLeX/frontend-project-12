@@ -33,7 +33,7 @@ const generateOnSubmit = (
       // })
       .then((response) => {
         setStatus(false);
-        // resetForm();
+        resetForm();
         const { data } = response;
         auth.logIn();
         navigate('/');
