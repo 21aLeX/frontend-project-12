@@ -1,22 +1,21 @@
 import cn from 'classnames';
 import { useTranslation } from 'react-i18next';
-import { setCurrentChannelId } from '../slices/slice.js';
+import { setCurrentChannelId } from '../slices/sliceChannels.js';
 import Modal from '../modals/Modal.jsx';
 
-const handleChannels = (id, dispatch) => () => {
-  dispatch(setCurrentChannelId(id));
-};
 const Channels = (props) => {
   const { t } = useTranslation();
-  const { value: { dataChat, dispatch } } = props;
+  const { value: { storeChannels, storeIdChannel, dispatch } } = props;
   return (
     <ul id="channels-box" className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
       {
-        dataChat.channels.map((channel) => (
+        storeChannels.map((channel) => (
           <li key={channel.name} className="nav-item w-100">
             <div role="group" className="d-flex dropdown btn-group">
               <button
-                onClick={handleChannels(channel.id, dispatch)}
+                onClick={() => {
+                  dispatch(setCurrentChannelId(channel.id));
+                }}
                 type="button"
                 className={
                   cn(
@@ -25,7 +24,7 @@ const Channels = (props) => {
                     'text-start',
                     'text-truncate',
                     'btn',
-                    { 'btn-secondary': dataChat.currentChannelId === channel.id },
+                    { 'btn-secondary': storeIdChannel === channel.id },
                   )
                 }
               >
@@ -47,7 +46,7 @@ const Channels = (props) => {
                           'dropdown-toggle',
                           'dropdown-toggle-split',
                           'btn',
-                          { 'btn-secondary': dataChat.currentChannelId === channel.id },
+                          { 'btn-secondary': storeIdChannel === channel.id },
                         )
                       }
                     >

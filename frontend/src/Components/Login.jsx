@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import LoginForm from './LoginForm';
-import image from '../image.jpg';
+import image from '../assets/image.jpg';
+import routes from '../routes.js';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -24,7 +25,7 @@ const Login = () => {
                 <span>
                   {t('interface.noAccount')}
                 </span>
-                <a href="/signup">
+                <a href={routes.signup()}>
                   {t('interface.signup')}
                 </a>
               </div>

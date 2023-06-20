@@ -1,17 +1,15 @@
 import { useFormik } from 'formik';
 import { Form } from 'react-bootstrap';
-import {
-  useEffect, useRef, useState,
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import routes from '../hooks/routes.js';
-import useAuth from '../hooks/index.jsx';
+import routes from '../routes.js';
+import useAuth from '../hooks/useAuth.jsx';
 
 const LoginForm = () => {
   const { t } = useTranslation();
-  const [status, setStatus] = useState(false);
+  const [isStatus, setIsStatus] = useState(false);
   const navigate = useNavigate();
   const auth = useAuth();
   const inputUserName = useRef();
@@ -23,21 +21,19 @@ const LoginForm = () => {
     },
     onSubmit: async ({ username, password }) => {
       try {
-        setStatus(false);
+        setIsStatus(false);
         const { data } = await axios
           .post(routes.loginPath(), {
             username,
             password,
           });
-        window.localStorage.setItem('userId', JSON.stringify(data));
-        window.localStorage.setItem('username', JSON.stringify(username));
-        auth.logIn();
-        navigate('/');
+        auth.logIn(JSON.stringify(data));
+        navigate(routes.home());
       } catch (error) {
         if (error.isAxiosError && error.response.status === 401) {
           console.log('error');
           inputUserName.current.focus();
-          setStatus(true);
+          setIsStatus(true);
           return;
         }
         throw error;
@@ -61,7 +57,7 @@ const LoginForm = () => {
           id="username"
           onChange={formik.handleChange}
           value={formik.values.username}
-          isInvalid={status}
+          isInvalid={isStatus}
         />
         <Form.Label htmlFor="username">
           {t('interface.nick')}
@@ -77,12 +73,12 @@ const LoginForm = () => {
           id="password"
           onChange={formik.handleChange}
           value={formik.values.password}
-          isInvalid={status}
+          isInvalid={isStatus}
         />
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-        {status
+        {isStatus
           ? (
             <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip>
               {t('invalidLoginPassword')}

@@ -1,13 +1,13 @@
 import { useFormik } from 'formik';
 import axios from 'axios';
-import * as Yup from 'yup';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Form } from 'react-bootstrap';
-import routes from '../hooks/routes.js';
-import useAuth from '../hooks/index.jsx';
-import image from '../signup.jpg';
+import image from '../assets/signup.jpg';
+import routes from '../routes.js';
+import useAuth from '../hooks/useAuth.jsx';
+import getSchema from '../schems';
 
 const generateOnSubmit = (
   setStatusSignup,
@@ -23,10 +23,8 @@ const generateOnSubmit = (
     .then((response) => {
       setStatusSignup(false);
       const { data } = response;
-      auth.logIn();
-      navigate('/');
-      window.localStorage.setItem('userId', JSON.stringify(data));
-      window.localStorage.setItem('username', JSON.stringify(username));
+      auth.logIn(JSON.stringify(data));
+      navigate(routes.home());
     })
     .catch(() => {
       setStatusSignup(true);
@@ -42,13 +40,7 @@ const Signup = () => {
   const inputUserPassword = useRef();
   const inputConfirmPassword = useRef();
   const formik = useFormik({
-    validationSchema: Yup.object().shape({
-      username: Yup.string().min(3, t('minSize')).max(20, t('minSize'))
-        .required(t('onblur')),
-      password: Yup.string().min(6, t('minPass'))
-        .required(t('onblur')),
-      confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], t('passwordsMustMatch')),
-    }),
+    validationSchema: getSchema('singup', t),
     initialValues: {
       username: '',
       password: '',

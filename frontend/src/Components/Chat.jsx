@@ -1,37 +1,34 @@
 import axios from 'axios';
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { io } from 'socket.io-client';
 import { useFormik } from 'formik';
 import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import filter from 'leo-profanity';
-import { useRollbar } from '@rollbar/react';
-import routes from '../hooks/routes.js';
-import { setData, addMessage } from '../slices/slice.js';
+import routes from '../routes.js';
+import { setMessages, addMessage } from '../slices/sliceMessages.js';
+import { setData } from '../slices/sliceChannels.js';
+import { setUser } from '../slices/sliceUser.js';
 import Modal from '../modals/Modal.jsx';
 import Channels from './Channels.jsx';
-
-// const socket = io('ws://localhost:5001');
-const socket = io();
-// filter.loadDictionary('ru');
-const getAuthHeader = () => {
-  const usetId = localStorage.getItem('userId');
-  const { token, username } = JSON.parse(usetId);
-  if (username && token) {
-    return { headers: { Authorization: `Bearer ${token}` }, username };
-  }
-  return {};
-};
+import useAuth from '../hooks/useAuth.jsx';
+import useSocket from '../hooks/useSocket.jsx';
+import useRoll from '../hooks/useRoll.jsx';
 
 const Chat = () => {
-  const rollbar = useRollbar();
-  const dataChat = useSelector((state) => state.data.data);
+  const dataChat = useSelector((state) => state.data);
   const { t } = useTranslation();
-  const { currentChannelId, username: user } = dataChat;
-  const currectMessages = dataChat.messages
-    .filter((item) => item.currentChannelId === dataChat.currentChannelId);
+  const auth = useAuth();
+  const socket = useSocket();
+  const rollbar = useRoll();
+  const {
+    channels: { currentChannelId: storeIdChannel, channels: storeChannels },
+    user,
+    messages: { messages: storeMessages },
+  } = dataChat;
+  const currectMessages = storeMessages
+    .filter((item) => item.currentChannelId === storeIdChannel);
   const count = currectMessages.length;
   const dispatch = useDispatch();
   const formik = useFormik({
@@ -41,10 +38,10 @@ const Chat = () => {
     onSubmit: async ({ body: mess }, { resetForm }) => {
       const message = filter.clean(mess);
       try {
-        await socket.emit('newMessage', { message, currentChannelId, user });
+        await socket.emit('newMessage', { message, currentChannelId: storeIdChannel, user: user.username });
         resetForm({ message: '' });
       } catch (error) {
-        rollbar.error('Error set new message', error);
+        rollbar.errors('Error set new message', error);
         console.log(error);
       }
     },
@@ -65,12 +62,15 @@ const Chat = () => {
     inputBody.current.focus();
     const fetchContent = async () => {
       try {
-        const { headers, username } = getAuthHeader();
-        const { data } = await axios.get(routes.usersPath(), { headers });
-        dispatch(setData({ ...data, username }));
+        const { headers, username } = auth.getAuthHeader();
+        const { data: { messages, currentChannelId, channels } } = await axios
+          .get(routes.usersPath(), { headers });
+        dispatch(setData({ channels, currentChannelId }));
+        dispatch(setMessages(messages));
+        dispatch(setUser(username));
       } catch (error) {
         console.log(error);
-        rollbar.error('Error get data', error);
+        rollbar.errors('Error get data', error);
         toast.error(t('notifications.networkError'));
       }
     };
@@ -88,7 +88,7 @@ const Chat = () => {
             </b>
             <Modal value={{ types: 'add' }} />
           </div>
-          <Channels value={{ dataChat, dispatch }} />
+          <Channels value={{ storeChannels, storeIdChannel, dispatch }} />
         </div>
         <div className="col p-0 h-100">
           <div className="d-flex flex-column h-100">
@@ -96,7 +96,7 @@ const Chat = () => {
               <p className="m-0">
                 <b>
                   {
-                    `#${dataChat.channels.find((item) => item.id === dataChat.currentChannelId).name}`
+                    `#${storeChannels.find((item) => item.id === storeIdChannel).name}`
                   }
                 </b>
               </p>

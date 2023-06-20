@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import svg404 from '../404.svg';
+import svg404 from '../assets/404.svg';
+import routes from '../routes.js';
 
 const Page404 = () => {
   const { t } = useTranslation();
@@ -15,7 +16,7 @@ const Page404 = () => {
       </h1>
       <p className="text-muted">
         {t('interface.go')}
-        <a href="/">
+        <a href={routes.home()}>
           {t('interface.toHomePage')}
         </a>
       </p>

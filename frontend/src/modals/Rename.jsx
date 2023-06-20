@@ -1,30 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import { Modal, Form } from 'react-bootstrap';
-import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { useRollbar } from '@rollbar/react';
-import { renameChannel } from '../slices/slice';
+import { renameChannel } from '../slices/sliceChannels.js';
+import useSocket from '../hooks/useSocket.jsx';
+import getSchema from '../schems.js';
+import useRoll from '../hooks/useRoll.jsx';
 
-const socket = io();
-// const socket = io('ws://localhost:5001');
 const Rename = (props) => {
-  const rollbar = useRollbar();
+  const rollbar = useRoll();
   const [statusButton, setStatusButton] = useState(false);
   const dispatch = useDispatch();
   const inputRef = useRef();
-  const dataChat = useSelector((state) => state.data.data);
-  const { channels } = dataChat;
+  const socket = useSocket();
+  const dataChat = useSelector((state) => state.data);
+  const { channels: { channels } } = dataChat;
   const { onHide, modalInfo } = props;
   const { t } = useTranslation();
   const { item } = modalInfo;
   const formik = useFormik({
-    validationSchema: Yup.object().shape({
-      name: Yup.string().required(t('onblur')).min(3, t('minSize')).max(20, t('minSize')),
-    }),
+    validationSchema: getSchema('rename', t)(channels),
     initialValues: {
       name: item.name,
       id: item.id,
@@ -34,22 +31,17 @@ const Rename = (props) => {
     onSubmit: async ({ name, id }) => {
       setStatusButton(true);
       try {
-        const isIncludes = channels.filter(({ name: n }) => name === n).length > 0;
-        if (isIncludes) {
-          formik.errors.name = t('include');
-        } else if (!isIncludes) {
-          socket.emit('renameChannel', { id, name }, ({ status: s }) => {
-            if (s !== 'ok') {
-              toast.error(t('notifications.errors'));
-              rollbar.error('Error network rename channel', s);
-            }
-          });
-          onHide();
-        }
+        await socket.emit('renameChannel', { id, name }, ({ status: s }) => {
+          if (s !== 'ok') {
+            toast.error(t('notifications.errors'));
+            rollbar.errors('Error network rename channel', s);
+          }
+        });
+        onHide();
         setStatusButton(false);
       } catch (error) {
         console.log(error);
-        rollbar.error('Error rename channel', error);
+        rollbar.errors('Error rename channel', error);
       }
     },
   });
@@ -62,7 +54,7 @@ const Rename = (props) => {
         dispatch(renameChannel(channel));
       });
     } catch (error) {
-      rollbar.error('Error rename channel', error);
+      rollbar.errors('Error rename channel', error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -1,53 +1,44 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import { Modal, Form } from 'react-bootstrap';
-import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { useRollbar } from '@rollbar/react';
-import { addChannel, setCurrentChannelId } from '../slices/slice';
+import { addChannel, setCurrentChannelId } from '../slices/sliceChannels.js';
+import useSocket from '../hooks/useSocket.jsx';
+import getSchema from '../schems.js';
+import useRoll from '../hooks/useRoll.jsx';
 
-const socket = io();
-// const socket = io('ws://localhost:5001');
 const Add = (props) => {
-  const rollbar = useRollbar();
-  const [statusButton, setStatusButton] = useState(false);
+  const rollbar = useRoll();
+  const [isStatusButton, setIsStatusButton] = useState(false);
   const { t } = useTranslation();
   const inputRef = useRef();
+  const socket = useSocket();
   const { onHide } = props;
-  const dataChat = useSelector((state) => state.data.data);
-  const { channels } = dataChat;
+  const dataChat = useSelector((state) => state.data);
+  const { channels: { channels } } = dataChat;
   const dispatch = useDispatch();
   const formik = useFormik({
-    validationSchema: Yup.object().shape({
-      name: Yup.string().required(t('onblur')).min(3, t('minSize')).max(20, t('minSize')),
-    }),
+    validationSchema: getSchema('add', t)(channels),
     initialValues: {
       name: '',
     },
     initialErrors: {},
     initialTouched: {},
     onSubmit: async ({ name }, { resetForm }) => {
-      setStatusButton(true);
+      setIsStatusButton(true);
       try {
-        const isIncludes = channels.filter(({ nameChanel }) => nameChanel === name).length > 0;
-        // ума не приложу как по другому реализовать проверку наличия уже такого названия канала(
-        if (isIncludes) {
-          formik.errors.name = t('include');
-        } else if (!isIncludes) {
-          socket.emit('newChannel', { name, removable: true }, ({ status: s }) => {
-            if (s !== 'ok') {
-              toast.error(t('notifications.networkError'));
-            }
-          });
-          resetForm({ name: '' });
-          onHide();
-        }
-        setStatusButton(false);
+        await socket.emit('newChannel', { name, removable: true }, ({ status: s }) => {
+          if (s !== 'ok') {
+            toast.error(t('notifications.networkError'));
+          }
+        });
+        resetForm({ name: '' });
+        onHide();
+        setIsStatusButton(false);
       } catch (error) {
-        rollbar.error('Error set new channel', error);
+        rollbar.errors('Error set new channel', error);
         console.log(error);
       }
     },
@@ -61,7 +52,7 @@ const Add = (props) => {
       dispatch(setCurrentChannelId(channel.id));
       dispatch(addChannel(channel));
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -95,7 +86,7 @@ const Add = (props) => {
             <button onClick={onHide} type="button" className="btn btn-secondary me-2">
               {t('interface.cancel')}
             </button>
-            <button disabled={statusButton} type="submit" className="btn btn-primary">{t('interface.send')}</button>
+            <button disabled={isStatusButton} type="submit" className="btn btn-primary">{t('interface.send')}</button>
           </div>
         </form>
       </Modal.Body>

@@ -2,20 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-import { useRollbar } from '@rollbar/react';
-import { removeChannel, setCurrentChannelId } from '../slices/slice';
+import { removeChannel, setCurrentChannelId } from '../slices/sliceChannels.js';
+import { removeMessages } from '../slices/sliceMessages.js';
+import useSocket from '../hooks/useSocket.jsx';
+import useRoll from '../hooks/useRoll.jsx';
 
-const socket = io();
-// const socket = io('ws://localhost:5001');
-const generateOnSubmit = ({ onHide }, { id }, setStatusButton, t, rollbar) => (e) => {
+const generateOnSubmit = ({ onHide }, { id }, setStatusButton, t, rollbar, socket) => async (e) => {
   e.preventDefault();
   setStatusButton(true);
-  socket.emit('removeChannel', { id }, ({ status: s }) => {
+  await socket.emit('removeChannel', { id }, ({ status: s }) => {
     if (s !== 'ok') {
       toast.error(t('notifications.networkError'));
-      rollbar.error('Error network remove message', s);
+      rollbar.errors('Error network remove message', s);
     }
   });
   setStatusButton(false);
@@ -23,26 +22,29 @@ const generateOnSubmit = ({ onHide }, { id }, setStatusButton, t, rollbar) => (e
 };
 
 const Remove = (props) => {
-  const rollbar = useRollbar();
+  const rollbar = useRoll();
   const [statusButton, setStatusButton] = useState(false);
   const { modalInfo: { item } } = props;
   const { t } = useTranslation();
-  const dataChat = useSelector((state) => state.data.data);
+  const socket = useSocket();
+  const dataChat = useSelector((state) => state.data);
+  const { channels: { currentChannelId } } = dataChat;
   const { onHide } = props;
   const dispatch = useDispatch();
-  const onClick = generateOnSubmit(props, item, setStatusButton, t, rollbar);
+  const onClick = generateOnSubmit(props, item, setStatusButton, t, rollbar, socket);
   useEffect(() => {
     try {
       socket.off('removeChannel');
       socket.on('removeChannel', (channel) => {
         toast.success(t('notifications.channelDeleted'));
         dispatch(removeChannel(channel.id));
-        if (channel.id === dataChat.currentChannelId) {
+        dispatch(removeMessages(channel.id));
+        if (channel.id === currentChannelId) {
           dispatch(setCurrentChannelId(1));
         }
       });
     } catch (error) {
-      rollbar.error('Error remove message', error);
+      rollbar.errors('Error remove message', error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
