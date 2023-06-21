@@ -63,7 +63,6 @@ const Modal = (props) => {
     : (
       <>
         {renderItem({ channel, showModal }, t)}
-        {renderModal(modalInfo)}
       </>
     );
 };
