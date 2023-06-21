@@ -1,5 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
+// eslint-disable-next-line import/no-cycle
+import { fetchData } from '../Components/Chat.jsx';
 
 const initialState = {
   channels: [{ name: '', id: 1 }],
@@ -10,11 +12,6 @@ const sliceChannels = createSlice({
   name: 'sliceChannels',
   initialState,
   reducers: {
-    setData: (state, { payload }) => {
-      console.log(payload);
-      state.channels = payload.channels;
-      state.currentChannelId = payload.currentChannelId;
-    },
     setCurrentChannelId: (state, { payload }) => {
       // console.log(payload);
       state.currentChannelId = payload;
@@ -35,6 +32,13 @@ const sliceChannels = createSlice({
         return item;
       });
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchData.fulfilled, (state, { payload }) => {
+        state.channels = payload.channels;
+        state.currentChannelId = payload.currentChannelId;
+      });
   },
 });
 

@@ -4,30 +4,31 @@ import { Modal, Form } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { addChannel, setCurrentChannelId } from '../slices/sliceChannels.js';
 import useSocket from '../hooks/useSocket.jsx';
 import getSchema from '../schems.js';
 import useRoll from '../hooks/useRoll.jsx';
+// eslint-disable-next-line import/no-cycle
+import { setModalInfo } from '../slices/sliceModals.js';
 
-const Add = (props) => {
+const Add = () => {
   const rollbar = useRoll();
-  const [isStatusButton, setIsStatusButton] = useState(false);
+  const dispatch = useDispatch();
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { t } = useTranslation();
   const inputRef = useRef();
   const socket = useSocket();
-  const { onHide } = props;
+  const onHide = () => dispatch(setModalInfo({ type: null, item: null }));
   const dataChat = useSelector((state) => state.data);
   const { channels: { channels } } = dataChat;
-  const dispatch = useDispatch();
   const formik = useFormik({
-    validationSchema: getSchema('add', t)(channels),
+    validationSchema: getSchema('add', t)(channels.map((chanel) => chanel.name)),
     initialValues: {
       name: '',
     },
     initialErrors: {},
     initialTouched: {},
     onSubmit: async ({ name }, { resetForm }) => {
-      setIsStatusButton(true);
+      setIsButtonDisabled(true);
       try {
         await socket.emit('newChannel', { name, removable: true }, ({ status: s }) => {
           if (s !== 'ok') {
@@ -36,22 +37,15 @@ const Add = (props) => {
         });
         resetForm({ name: '' });
         onHide();
-        setIsStatusButton(false);
+        setIsButtonDisabled(false);
       } catch (error) {
-        rollbar.errors('Error set new channel', error);
+        rollbar.getErrors('Error set new channel', error);
         console.log(error);
       }
     },
   });
   useEffect(() => {
     inputRef.current.focus();
-    socket.off('newChannel');
-    socket.on('newChannel', (channel) => {
-      console.log('socket');
-      toast.success(t('notifications.channelCreated'));
-      dispatch(setCurrentChannelId(channel.id));
-      dispatch(addChannel(channel));
-    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -86,7 +80,7 @@ const Add = (props) => {
             <button onClick={onHide} type="button" className="btn btn-secondary me-2">
               {t('interface.cancel')}
             </button>
-            <button disabled={isStatusButton} type="submit" className="btn btn-primary">{t('interface.send')}</button>
+            <button disabled={isButtonDisabled} type="submit" className="btn btn-primary">{t('interface.send')}</button>
           </div>
         </form>
       </Modal.Body>

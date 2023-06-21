@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+/* eslint-disable import/no-cycle */
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import getModal from './index.js';
+import { setModalInfo } from '../slices/sliceModals.js';
 
 const renderItem = ({ channel: item, showModal }, t) => (
   <>
@@ -25,21 +28,22 @@ const renderItem = ({ channel: item, showModal }, t) => (
   </>
 );
 
-const renderModal = ({ modalInfo, hideModal }) => {
+const renderModal = (modalInfo) => {
   if (!modalInfo.type) {
     return null;
   }
 
   const Component = getModal(modalInfo.type);
-  return <Component className="modal-dialog-centered" modalInfo={modalInfo} onHide={hideModal} />;
+  return <Component className="modal-dialog-centered" />;
 };
 
 const Modal = (props) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const dataChat = useSelector((state) => state.data);
+  const { modals: { modalInfo } } = dataChat;
   const { value: { types, channel } } = props;
-  const [modalInfo, setModalInfo] = useState({});
-  const hideModal = () => setModalInfo({ type: null, item: null });
-  const showModal = (type, item = null) => () => setModalInfo({ type, item });
+  const showModal = (type, item = null) => () => dispatch(setModalInfo({ type, item }));
 
   return types === 'add'
     ? (
@@ -53,13 +57,13 @@ const Modal = (props) => {
             {t('interface.plus')}
           </span>
         </button>
-        {renderModal({ modalInfo, hideModal })}
+        {renderModal(modalInfo)}
       </>
     )
     : (
       <>
         {renderItem({ channel, showModal }, t)}
-        {renderModal({ modalInfo, hideModal })}
+        {renderModal(modalInfo)}
       </>
     );
 };

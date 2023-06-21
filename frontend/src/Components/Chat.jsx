@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import axios from 'axios';
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -6,16 +7,30 @@ import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import filter from 'leo-profanity';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import routes from '../routes.js';
-import { setMessages, addMessage } from '../slices/sliceMessages.js';
-import { setData } from '../slices/sliceChannels.js';
-import { setUser } from '../slices/sliceUser.js';
+import { addMessage } from '../slices/sliceMessages.js';
 import Modal from '../modals/Modal.jsx';
 import Channels from './Channels.jsx';
 import useAuth from '../hooks/useAuth.jsx';
 import useSocket from '../hooks/useSocket.jsx';
 import useRoll from '../hooks/useRoll.jsx';
+import {
+  addChannel, setCurrentChannelId, removeChannel, renameChannel,
+} from '../slices/sliceChannels.js';
 
+export const fetchData = createAsyncThunk(
+  'fetchData',
+  async (auth) => {
+    const { headers, username } = auth.getAuthHeader();
+    const { data: { messages, currentChannelId, channels } } = await axios
+      .get(routes.usersPath(), { headers });
+    // console.log(messages);
+    return {
+      messages, currentChannelId, channels, username,
+    };
+  },
+);
 const Chat = () => {
   const dataChat = useSelector((state) => state.data);
   const { t } = useTranslation();
@@ -28,7 +43,7 @@ const Chat = () => {
     messages: { messages: storeMessages },
   } = dataChat;
   const currectMessages = storeMessages
-    .filter((item) => item.currentChannelId === storeIdChannel);
+    .filter((item) => item.channelId === storeIdChannel);
   const count = currectMessages.length;
   const dispatch = useDispatch();
   const formik = useFormik({
@@ -38,10 +53,10 @@ const Chat = () => {
     onSubmit: async ({ body: mess }, { resetForm }) => {
       const message = filter.clean(mess);
       try {
-        await socket.emit('newMessage', { message, currentChannelId: storeIdChannel, user: user.username });
+        await socket.emit('newMessage', { message, channelId: storeIdChannel, user: user.username });
         resetForm({ message: '' });
       } catch (error) {
-        rollbar.errors('Error set new message', error);
+        rollbar.getErrors('Error set new message', error);
         console.log(error);
       }
     },
@@ -55,22 +70,46 @@ const Chat = () => {
     }
   }, []);
   useEffect(() => {
+    socket.off('removeChannel');
+    socket.on('removeChannel', ({ id }) => {
+      // console.log(storeIdChannel);
+      if (id === storeIdChannel) {
+        dispatch(setCurrentChannelId(1));
+      }
+      toast.success(t('notifications.channelDeleted'));
+      dispatch(removeChannel(id));
+    });
+  });
+  useEffect(() => {
     socket.off('newMessage');
     socket.on('newMessage', (messages) => {
       dispatch(addMessage(messages));
     });
+  });
+  useEffect(() => {
+    socket.off('newChannel');
+    socket.on('newChannel', (channel) => {
+      // console.log('socket');
+      toast.success(t('notifications.channelCreated'));
+      dispatch(setCurrentChannelId(channel.id));
+      dispatch(addChannel(channel));
+    });
+  });
+  useEffect(() => {
+    socket.off('renameChannel');
+    socket.on('renameChannel', (channel) => {
+      toast.success(t('notifications.channelRenamed'));
+      dispatch(renameChannel(channel));
+    });
+  });
+  useEffect(() => {
     inputBody.current.focus();
     const fetchContent = async () => {
       try {
-        const { headers, username } = auth.getAuthHeader();
-        const { data: { messages, currentChannelId, channels } } = await axios
-          .get(routes.usersPath(), { headers });
-        dispatch(setData({ channels, currentChannelId }));
-        dispatch(setMessages(messages));
-        dispatch(setUser(username));
+        dispatch(fetchData(auth));
       } catch (error) {
         console.log(error);
-        rollbar.errors('Error get data', error);
+        rollbar.getErrors('Error get data', error);
         toast.error(t('notifications.networkError'));
       }
     };
@@ -88,7 +127,7 @@ const Chat = () => {
             </b>
             <Modal value={{ types: 'add' }} />
           </div>
-          <Channels value={{ storeChannels, storeIdChannel, dispatch }} />
+          <Channels value={{ storeChannels, storeIdChannel }} />
         </div>
         <div className="col p-0 h-100">
           <div className="d-flex flex-column h-100">

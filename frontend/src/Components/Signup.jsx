@@ -13,22 +13,20 @@ const generateOnSubmit = (
   setStatusSignup,
   auth,
   navigate,
-) => ({ username, password }) => {
+) => async ({ username, password }) => {
   setStatusSignup(false);
-  axios
-    .post(routes.signupPath(), {
-      username,
-      password,
-    })
-    .then((response) => {
-      setStatusSignup(false);
-      const { data } = response;
-      auth.logIn(JSON.stringify(data));
-      navigate(routes.home());
-    })
-    .catch(() => {
-      setStatusSignup(true);
-    });
+  try {
+    const { data } = await axios
+      .post(routes.signupPath(), {
+        username,
+        password,
+      });
+    setStatusSignup(false);
+    auth.logIn(JSON.stringify(data));
+    navigate(routes.home());
+  } catch (error) {
+    setStatusSignup(true);
+  }
 };
 
 const Signup = () => {
@@ -40,7 +38,7 @@ const Signup = () => {
   const inputUserPassword = useRef();
   const inputConfirmPassword = useRef();
   const formik = useFormik({
-    validationSchema: getSchema('singup', t),
+    validationSchema: getSchema('singup', t)(),
     initialValues: {
       username: '',
       password: '',

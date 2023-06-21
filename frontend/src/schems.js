@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 const getSchema = (name, t) => {
   switch (name) {
     case 'singup':
-      return Yup.object().shape({
+      return () => Yup.object().shape({
         username: Yup.string().min(3, t('minSize')).max(20, t('minSize'))
           .required(t('onblur')),
         password: Yup.string().min(6, t('minPass'))
@@ -12,14 +12,13 @@ const getSchema = (name, t) => {
       });
     case 'add':
       return (channels) => Yup.object().shape({
-        name: Yup.string().required(t('onblur')).notOneOf(channels.map((chanel) => chanel.name), t('include')).min(3, t('minSize'))
+        name: Yup.string().required(t('onblur')).notOneOf(channels, t('include')).min(3, t('minSize'))
           .max(20, t('minSize')),
       });
     case 'rename':
       return (channels) => Yup.object().shape({
-        name: Yup.string().required(t('onblur')).notOneOf(channels.map((chanel) => chanel.name), t('include')).min(3, t('minSize'))
+        name: Yup.string().required(t('onblur')).notOneOf(channels, t('include')).min(3, t('minSize'))
           .max(20, t('minSize')),
-        //  notOneOf -  я так и знала, так и знала, что это понадобиться
       });
     default:
       return Yup.object().shape({});

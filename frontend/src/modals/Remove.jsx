@@ -1,53 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { removeChannel, setCurrentChannelId } from '../slices/sliceChannels.js';
-import { removeMessages } from '../slices/sliceMessages.js';
 import useSocket from '../hooks/useSocket.jsx';
 import useRoll from '../hooks/useRoll.jsx';
+// eslint-disable-next-line import/no-cycle
+import { setModalInfo } from '../slices/sliceModals.js';
 
-const generateOnSubmit = ({ onHide }, { id }, setStatusButton, t, rollbar, socket) => async (e) => {
-  e.preventDefault();
-  setStatusButton(true);
-  await socket.emit('removeChannel', { id }, ({ status: s }) => {
-    if (s !== 'ok') {
-      toast.error(t('notifications.networkError'));
-      rollbar.errors('Error network remove message', s);
-    }
-  });
-  setStatusButton(false);
-  onHide();
-};
-
-const Remove = (props) => {
+const Remove = () => {
   const rollbar = useRoll();
+  const dispatch = useDispatch();
   const [statusButton, setStatusButton] = useState(false);
-  const { modalInfo: { item } } = props;
+  const dataChat = useSelector((state) => state.data);
+  const { modals: { modalInfo: { item: id } } } = dataChat;
   const { t } = useTranslation();
   const socket = useSocket();
-  const dataChat = useSelector((state) => state.data);
-  const { channels: { currentChannelId } } = dataChat;
-  const { onHide } = props;
-  const dispatch = useDispatch();
-  const onClick = generateOnSubmit(props, item, setStatusButton, t, rollbar, socket);
-  useEffect(() => {
-    try {
-      socket.off('removeChannel');
-      socket.on('removeChannel', (channel) => {
-        toast.success(t('notifications.channelDeleted'));
-        dispatch(removeChannel(channel.id));
-        dispatch(removeMessages(channel.id));
-        if (channel.id === currentChannelId) {
-          dispatch(setCurrentChannelId(1));
-        }
-      });
-    } catch (error) {
-      rollbar.errors('Error remove message', error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onHide = () => dispatch(setModalInfo({ type: null, item: null }));
+  const onClick = async (e) => {
+    e.preventDefault();
+    setStatusButton(true);
+    await socket.emit('removeChannel', id, ({ status: s }) => {
+      if (s !== 'ok') {
+        toast.error(t('notifications.networkError'));
+        rollbar.getErrors('Error network remove message', s);
+      }
+    });
+    setStatusButton(false);
+    onHide();
+  };
   return (
     <Modal show centered onHide={onHide}>
       <Modal.Header closeButton onHide={onHide}>

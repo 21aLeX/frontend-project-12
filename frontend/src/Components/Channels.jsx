@@ -1,11 +1,14 @@
 import cn from 'classnames';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+// eslint-disable-next-line import/no-cycle
 import { setCurrentChannelId } from '../slices/sliceChannels.js';
 import Modal from '../modals/Modal.jsx';
 
 const Channels = (props) => {
   const { t } = useTranslation();
-  const { value: { storeChannels, storeIdChannel, dispatch } } = props;
+  const dispatch = useDispatch();
+  const { value: { storeChannels, storeIdChannel } } = props;
   return (
     <ul id="channels-box" className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
       {
@@ -14,6 +17,7 @@ const Channels = (props) => {
             <div role="group" className="d-flex dropdown btn-group">
               <button
                 onClick={() => {
+                  // console.log(channel.id);
                   dispatch(setCurrentChannelId(channel.id));
                 }}
                 type="button"

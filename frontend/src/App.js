@@ -10,56 +10,21 @@ import {
 } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useState } from 'react';
 import { Button, Navbar } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from '@rollbar/react';
-import Rollbar from 'rollbar';
 import Page404 from './Components/Page404.jsx';
 import Login from './Components/Login.jsx';
-import AuthContext from './contexts/AuthContext.jsx';
 import Chat from './Components/Chat.jsx';
 import useAuth from './hooks/useAuth.jsx';
 import Signup from './Components/Signup.jsx';
 import routes from './routes.js';
-import RollContext from './contexts/RollContext.jsx';
-
-const AuthProvider = ({ children }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userId, setUserId] = useState(window.localStorage.getItem('userId'));
-
-  const logIn = (id) => {
-    window.localStorage.setItem('userId', id);
-    setUserId(window.localStorage.getItem('userId'));
-    setLoggedIn(true);
-  };
-  const logOut = () => {
-    localStorage.removeItem('userId');
-    setUserId(null);
-    setLoggedIn(false);
-  };
-  const getAuthHeader = () => {
-    const { token, username } = JSON.parse(userId);
-    if (username && token) {
-      return { headers: { Authorization: `Bearer ${token}` }, username };
-    }
-    return {};
-  };
-  return (
-    <AuthContext.Provider value={{
-      userId, loggedIn, logIn, logOut, getAuthHeader,
-    }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
+import { AuthProvider, RollProvider } from './providers.js';
 
 const ChatRoute = ({ children }) => {
   const location = useLocation();
   const auth = useAuth();
 
-  if (auth.userId) {
+  if (auth.userData) {
     return children;
   }
   return (
@@ -74,27 +39,12 @@ const AuthButton = ({ value: { t } }) => {
     auth.logOut();
     navigate(routes.home());
   };
-  if (auth.userId) {
+  if (auth.userData) {
     return <Button onClick={getHeader}>{t('interface.logOut')}</Button>;
   }
   return '';
 };
 
-const rollbarConfig = {
-  accessToken: process.env.REACT_APP_ACCESSTOKEN,
-  environment: process.env.REACT_APP_ENVIROMENT,
-};
-const errors = (textError, error) => {
-  const rollbar = new Rollbar(rollbarConfig);
-  rollbar.error(textError, error);
-};
-const RollProvider = ({ children }) => (
-  <RollContext.Provider value={{ errors }}>
-    <ErrorBoundary>
-      {children}
-    </ErrorBoundary>
-  </RollContext.Provider>
-);
 const App = () => {
   const { t } = useTranslation();
   return (

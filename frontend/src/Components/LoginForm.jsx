@@ -9,7 +9,7 @@ import useAuth from '../hooks/useAuth.jsx';
 
 const LoginForm = () => {
   const { t } = useTranslation();
-  const [isStatus, setIsStatus] = useState(false);
+  const [isInvalidLoginPassword, setIsInvalidLoginPassword] = useState(false);
   const navigate = useNavigate();
   const auth = useAuth();
   const inputUserName = useRef();
@@ -21,7 +21,7 @@ const LoginForm = () => {
     },
     onSubmit: async ({ username, password }) => {
       try {
-        setIsStatus(false);
+        setIsInvalidLoginPassword(false);
         const { data } = await axios
           .post(routes.loginPath(), {
             username,
@@ -33,7 +33,7 @@ const LoginForm = () => {
         if (error.isAxiosError && error.response.status === 401) {
           console.log('error');
           inputUserName.current.focus();
-          setIsStatus(true);
+          setIsInvalidLoginPassword(true);
           return;
         }
         throw error;
@@ -57,7 +57,7 @@ const LoginForm = () => {
           id="username"
           onChange={formik.handleChange}
           value={formik.values.username}
-          isInvalid={isStatus}
+          isInvalid={isInvalidLoginPassword}
         />
         <Form.Label htmlFor="username">
           {t('interface.nick')}
@@ -73,12 +73,12 @@ const LoginForm = () => {
           id="password"
           onChange={formik.handleChange}
           value={formik.values.password}
-          isInvalid={isStatus}
+          isInvalid={isInvalidLoginPassword}
         />
         <Form.Label htmlFor="password">
           {t('interface.password')}
         </Form.Label>
-        {isStatus
+        {isInvalidLoginPassword
           ? (
             <Form.Control.Feedback type="invalid" className="invalid-tooltip" tooltip>
               {t('invalidLoginPassword')}
