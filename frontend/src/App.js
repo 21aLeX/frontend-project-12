@@ -12,11 +12,11 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Button, Navbar } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import Page404 from './Components/Page404.jsx';
-import Login from './Components/Login.jsx';
-import Chat from './Components/Chat.jsx';
+import Page404 from './components/Page404.jsx';
+import Login from './components/Login.jsx';
+import Chat from './components/Chat.jsx';
 import useAuth from './hooks/useAuth.jsx';
-import Signup from './Components/Signup.jsx';
+import Signup from './components/Signup.jsx';
 import routes from './routes.js';
 import { AuthProvider, RollProvider } from './providers.js';
 
@@ -35,12 +35,12 @@ const ChatRoute = ({ children }) => {
 const AuthButton = ({ value: { t } }) => {
   const auth = useAuth();
   const navigate = useNavigate();
-  const getHeader = () => {
+  const logOut = () => {
     auth.logOut();
     navigate(routes.home());
   };
   if (auth.userData) {
-    return <Button onClick={getHeader}>{t('interface.logOut')}</Button>;
+    return <Button onClick={logOut}>{t('interface.logOut')}</Button>;
   }
   return '';
 };

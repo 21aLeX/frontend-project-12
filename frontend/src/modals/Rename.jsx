@@ -31,7 +31,6 @@ const Rename = () => {
     initialErrors: {},
     initialTouched: {},
     onSubmit: async ({ name, id }) => {
-      setStatusButton(true);
       try {
         await socket.emit('renameChannel', { id, name }, ({ status: s }) => {
           if (s !== 'ok') {
@@ -45,6 +44,7 @@ const Rename = () => {
         console.log(error);
         rollbar.getErrors('Error rename channel', error);
       }
+      setStatusButton(true);
     },
   });
   useEffect(() => {

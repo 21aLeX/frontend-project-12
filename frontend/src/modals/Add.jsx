@@ -28,7 +28,6 @@ const Add = () => {
     initialErrors: {},
     initialTouched: {},
     onSubmit: async ({ name }, { resetForm }) => {
-      setIsButtonDisabled(true);
       try {
         await socket.emit('newChannel', { name, removable: true }, ({ status: s }) => {
           if (s !== 'ok') {
@@ -42,6 +41,7 @@ const Add = () => {
         rollbar.getErrors('Error set new channel', error);
         console.log(error);
       }
+      setIsButtonDisabled(true);
     },
   });
   useEffect(() => {

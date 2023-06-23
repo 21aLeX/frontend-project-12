@@ -1,10 +1,9 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
-// eslint-disable-next-line import/no-cycle
-import { fetchData } from '../Components/Chat.jsx';
+import fetchData from '../Api/fetchData';
 
 const initialState = {
-  channels: [{ name: '', id: 1 }],
+  channels: [],
   currentChannelId: 1,
 };
 

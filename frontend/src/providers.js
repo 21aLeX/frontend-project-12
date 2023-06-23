@@ -1,5 +1,5 @@
 import { ErrorBoundary } from '@rollbar/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { io } from 'socket.io-client';
 import Rollbar from 'rollbar';
 import RollContext from './contexts/RollContext.jsx';
@@ -22,19 +22,20 @@ const AuthProvider = ({ children }) => {
     setUserData(null);
     setLoggedIn(false);
   };
-  const getAuthHeader = () => {
-    const { token, username } = JSON.parse(userData);
-    if (username && token) {
-      return { headers: { Authorization: `Bearer ${token}` }, username };
-    }
-    return {};
-  };
-  return (
-    // eslint-disable-next-line react/jsx-no-constructed-context-values
-    <AuthContext.Provider value={{
+  const value = useMemo(() => {
+    const getAuthHeader = () => {
+      const { token, username } = JSON.parse(userData);
+      if (username && token) {
+        return { headers: { Authorization: `Bearer ${token}` }, username };
+      }
+      return {};
+    };
+    return {
       userData, loggedIn, logIn, logOut, getAuthHeader,
-    }}
-    >
+    };
+  }, [loggedIn, userData]);
+  return (
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -45,23 +46,25 @@ const rollbarConfig = {
   accessToken: process.env.REACT_APP_ACCESSTOKEN,
   environment: process.env.REACT_APP_ENVIROMENT,
 };
-const getErrors = (textError, error) => {
-  const rollbar = new Rollbar(rollbarConfig);
-  rollbar.error(textError, error);
+const RollProvider = ({ children }) => {
+  const getErrors = (textError, error) => {
+    const rollbar = new Rollbar(rollbarConfig);
+    rollbar.error(textError, error);
+  };
+  const value = useMemo(() => ({ getErrors }), []);
+  return (
+    <RollContext.Provider value={value}>
+      <ErrorBoundary>
+        {children}
+      </ErrorBoundary>
+    </RollContext.Provider>
+  );
 };
-const RollProvider = ({ children }) => (
-  // eslint-disable-next-line react/jsx-no-constructed-context-values
-  <RollContext.Provider value={{ getErrors }}>
-    <ErrorBoundary>
-      {children}
-    </ErrorBoundary>
-  </RollContext.Provider>
-);
 
 // Сокет
 const SocketProvider = ({ children }) => {
-  const socket = io();
-  // const socket = io('ws://localhost:5001');
+  // const socket = io();
+  const socket = io('ws://localhost:5001');
   return (
     <SocketContext.Provider value={socket}>
       {children}

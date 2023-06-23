@@ -1,8 +1,7 @@
-/* eslint-disable import/no-cycle */
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
 import { removeChannel } from './sliceChannels.js';
-import { fetchData } from '../Components/Chat.jsx';
+import fetchData from '../Api/fetchData.js';
 
 const initialState = {
   messages: [],
