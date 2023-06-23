@@ -63,8 +63,8 @@ const RollProvider = ({ children }) => {
 
 // Сокет
 const SocketProvider = ({ children }) => {
-  // const socket = io();
-  const socket = io('ws://localhost:5001');
+  const socket = io();
+  // const socket = io('ws://localhost:5001');
   return (
     <SocketContext.Provider value={socket}>
       {children}
