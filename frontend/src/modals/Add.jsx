@@ -17,7 +17,7 @@ const Add = () => {
   const { t } = useTranslation();
   const inputRef = useRef();
   const socket = useSocket();
-  const onHide = () => dispatch(setModalInfo({ type: null, item: null }));
+  const onHide = () => dispatch(setModalInfo({ type: '', item: {} }));
   const dataChat = useSelector((state) => state.data);
   const { channels: { channels } } = dataChat;
   const formik = useFormik({
@@ -29,6 +29,7 @@ const Add = () => {
     initialTouched: {},
     onSubmit: async ({ name }, { resetForm }) => {
       try {
+        setIsButtonDisabled(true);
         await socket.emit('newChannel', { name, removable: true }, ({ status: s }) => {
           if (s !== 'ok') {
             toast.error(t('notifications.networkError'));
@@ -36,12 +37,12 @@ const Add = () => {
         });
         resetForm({ name: '' });
         onHide();
-        setIsButtonDisabled(false);
       } catch (error) {
         rollbar.getErrors('Error set new channel', error);
         console.log(error);
+      } finally {
+        setIsButtonDisabled(false);
       }
-      setIsButtonDisabled(true);
     },
   });
   useEffect(() => {

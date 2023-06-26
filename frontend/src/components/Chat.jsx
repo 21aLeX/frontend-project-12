@@ -4,6 +4,7 @@ import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import filter from 'leo-profanity';
+import { useNavigate } from 'react-router-dom';
 import { addMessage } from '../slices/sliceMessages.js';
 import useAuth from '../hooks/useAuth.jsx';
 import useSocket from '../hooks/useSocket.jsx';
@@ -11,13 +12,15 @@ import useRoll from '../hooks/useRoll.jsx';
 import {
   addChannel, setCurrentChannelId, removeChannel, renameChannel,
 } from '../slices/sliceChannels.js';
-import fetchData from '../Api/fetchData.js';
+import fetchData from '../api/fetchData.js';
 import ChatComponent from './ChatComponent.jsx';
+import routes from '../routes.js';
 
 const Chat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const dataChat = useSelector((state) => state.data);
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const auth = useAuth();
   const socket = useSocket();
   const rollbar = useRoll();
@@ -91,10 +94,14 @@ const Chat = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        await dispatch(fetchData(headers));
+        await dispatch(fetchData(headers)).unwrap();
         setIsLoading(true);
       } catch (error) {
-        console.log(error);
+        if (error.message === '401') {
+          navigate(routes.login());
+          auth.logOut();
+        }
+        console.log(error.message);
         rollbar.getErrors('Error get data', error);
         toast.error(t('notifications.networkError'));
       }

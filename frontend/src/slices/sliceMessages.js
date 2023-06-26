@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
 import { removeChannel } from './sliceChannels.js';
-import fetchData from '../Api/fetchData.js';
+import fetchData from '../api/fetchData.js';
 
 const initialState = {
   messages: [],

@@ -12,14 +12,13 @@ import { setModalInfo } from '../slices/sliceModals.js';
 
 const Rename = () => {
   const rollbar = useRoll();
-  const [statusButton, setStatusButton] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const dispatch = useDispatch();
   const inputRef = useRef();
   const socket = useSocket();
   const dataChat = useSelector((state) => state.data);
-  const { channels: { channels } } = dataChat;
-  const { modals: { modalInfo } } = dataChat;
-  const onHide = () => dispatch(setModalInfo({ type: null, item: null }));
+  const { channels: { channels }, modals: { modalInfo } } = dataChat;
+  const onHide = () => dispatch(setModalInfo({ type: '', item: {} }));
   const { t } = useTranslation();
   const { item } = modalInfo;
   const formik = useFormik({
@@ -32,6 +31,7 @@ const Rename = () => {
     initialTouched: {},
     onSubmit: async ({ name, id }) => {
       try {
+        setIsButtonDisabled(true);
         await socket.emit('renameChannel', { id, name }, ({ status: s }) => {
           if (s !== 'ok') {
             toast.error(t('notifications.errors'));
@@ -39,17 +39,19 @@ const Rename = () => {
           }
         });
         onHide();
-        setStatusButton(false);
       } catch (error) {
         console.log(error);
         rollbar.getErrors('Error rename channel', error);
+      } finally {
+        setIsButtonDisabled(false);
       }
-      setStatusButton(true);
     },
   });
   useEffect(() => {
     try {
-      inputRef.current.select();
+      if (inputRef.current) {
+        inputRef.current.select();
+      }
     } catch (error) {
       rollbar.getErrors('Error rename channel', error);
     }
@@ -88,7 +90,7 @@ const Rename = () => {
             <button onClick={onHide} type="button" className="btn btn-secondary me-2" data-dismiss="modal">
               {t('interface.cancel')}
             </button>
-            <button disabled={statusButton} type="submit" className="btn btn-primary">{t('interface.send')}</button>
+            <button disabled={isButtonDisabled} type="submit" className="btn btn-primary">{t('interface.send')}</button>
           </div>
         </form>
       </Modal.Body>

@@ -8,10 +8,9 @@ const fetchData = createAsyncThunk(
     try {
       const { data: { messages, currentChannelId, channels } } = await axios
         .get(routes.usersPath(), { headers });
-      // console.log(messages);
       return { messages, currentChannelId, channels };
     } catch (error) {
-      return error;
+      throw new Error(error.response.status);
     }
   },
 );

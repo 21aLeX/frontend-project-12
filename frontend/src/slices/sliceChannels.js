@@ -1,10 +1,12 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
-import fetchData from '../Api/fetchData';
+import fetchData from '../api/fetchData.js';
 
 const initialState = {
   channels: [],
   currentChannelId: 1,
+  isError: false,
+  errorCode: '',
 };
 
 const sliceChannels = createSlice({
