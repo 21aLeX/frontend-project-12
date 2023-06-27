@@ -3,13 +3,13 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import getModal from './index.js';
-import { setModalInfo } from '../slices/sliceModals.js';
+import { openModal } from '../slices/sliceModals.js';
 
-const renderItem = ({ channel: item, showModal }, t) => (
+const renderItem = ({ channel: selectedChannel, showModal }, t) => (
   <>
     <button
       type="button"
-      onClick={showModal('removing', item)}
+      onClick={showModal('removing', selectedChannel)}
       data-rr-ui-dropdown-item=""
       className="dropdown-item"
       tabIndex="0"
@@ -18,7 +18,7 @@ const renderItem = ({ channel: item, showModal }, t) => (
     </button>
     <button
       type="button"
-      onClick={showModal('renaming', item)}
+      onClick={showModal('renaming', selectedChannel)}
       data-rr-ui-dropdown-item=""
       className="dropdown-item"
       tabIndex="0"
@@ -43,7 +43,9 @@ const Modal = (props) => {
   const dataChat = useSelector((state) => state.data);
   const { modals: { modalInfo } } = dataChat;
   const { value: { types, channel } } = props;
-  const showModal = (type, item = null) => () => dispatch(setModalInfo({ type, item }));
+  const showModal = (type, selectedChannel = null) => () => dispatch(
+    openModal({ type, selectedChannel }),
+  );
 
   return types === 'add'
     ? (

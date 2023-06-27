@@ -62,8 +62,23 @@ const RollProvider = ({ children }) => {
 const SocketProvider = ({ children }) => {
   const socket = io();
   // const socket = io('ws://localhost:5001');
+  const removeChannel = useCallback(async (data) => {
+    await socket.emit('removeChannel', data);
+  }, [socket]);
+  const renameChannel = useCallback(async (data) => {
+    await socket.emit('renameChannel', data);
+  }, [socket]);
+  const addChannel = useCallback(async (data) => {
+    await socket.emit('newChannel', data);
+  }, [socket]);
+  const sendMessage = useCallback(async (data) => {
+    await socket.emit('newMessage', data);
+  }, [socket]);
+  const value = useMemo(() => ({
+    socket, removeChannel, renameChannel, addChannel, sendMessage,
+  }), [removeChannel, renameChannel, addChannel, sendMessage, socket]);
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={value}>
       {children}
     </SocketContext.Provider>
   );

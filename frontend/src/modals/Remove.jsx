@@ -5,30 +5,25 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import useSocket from '../hooks/useSocket.jsx';
 import useRoll from '../hooks/useRoll.jsx';
-// eslint-disable-next-line import/no-cycle
-import { setModalInfo } from '../slices/sliceModals.js';
+import { closeModal } from '../slices/sliceModals.js';
 
 const Remove = () => {
   const rollbar = useRoll();
   const dispatch = useDispatch();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const dataChat = useSelector((state) => state.data);
-  const { modals: { modalInfo: { item: id } } } = dataChat;
+  const { modals: { modalInfo: { selectedChannel: id } } } = dataChat;
   const { t } = useTranslation();
-  const socket = useSocket();
-  const onHide = () => dispatch(setModalInfo({ type: '', item: {} }));
+  const { removeChannel } = useSocket();
+  const onHide = () => dispatch(closeModal());
   const onClick = async (e) => {
     try {
       e.preventDefault();
       setIsButtonDisabled(true);
-      await socket.emit('removeChannel', id, ({ status: s }) => {
-        if (s !== 'ok') {
-          toast.error(t('notifications.networkError'));
-          rollbar.getErrors('Error network remove message', s);
-        }
-      });
+      await removeChannel(id);
     } catch (error) {
       console.log(error);
+      toast.error(t('notifications.errors'));
       rollbar.getErrors('Error remove channel', error);
     } finally {
       setIsButtonDisabled(false);

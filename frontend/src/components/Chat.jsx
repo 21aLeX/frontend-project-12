@@ -22,7 +22,7 @@ const Chat = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const auth = useAuth();
-  const socket = useSocket();
+  const { socket, sendMessage } = useSocket();
   const rollbar = useRoll();
   const { headers, username } = auth.getAuthHeader();
   const {
@@ -40,7 +40,7 @@ const Chat = () => {
     onSubmit: async ({ body: mess }, { resetForm }) => {
       const message = filter.clean(mess);
       try {
-        await socket.emit('newMessage', { message, channelId: storeIdChannel, user: username });
+        await sendMessage({ message, channelId: storeIdChannel, user: username });
         resetForm({ message: '' });
       } catch (error) {
         rollbar.getErrors('Error set new message', error);

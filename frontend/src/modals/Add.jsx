@@ -8,7 +8,7 @@ import useSocket from '../hooks/useSocket.jsx';
 import getSchema from '../schems.js';
 import useRoll from '../hooks/useRoll.jsx';
 // eslint-disable-next-line import/no-cycle
-import { setModalInfo } from '../slices/sliceModals.js';
+import { closeModal } from '../slices/sliceModals.js';
 
 const Add = () => {
   const rollbar = useRoll();
@@ -16,8 +16,8 @@ const Add = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { t } = useTranslation();
   const inputRef = useRef();
-  const socket = useSocket();
-  const onHide = () => dispatch(setModalInfo({ type: '', item: {} }));
+  const { addChannel } = useSocket();
+  const onHide = () => dispatch(closeModal());
   const dataChat = useSelector((state) => state.data);
   const { channels: { channels } } = dataChat;
   const formik = useFormik({
@@ -30,16 +30,13 @@ const Add = () => {
     onSubmit: async ({ name }, { resetForm }) => {
       try {
         setIsButtonDisabled(true);
-        await socket.emit('newChannel', { name, removable: true }, ({ status: s }) => {
-          if (s !== 'ok') {
-            toast.error(t('notifications.networkError'));
-          }
-        });
+        await addChannel({ name, removable: true });
         resetForm({ name: '' });
         onHide();
       } catch (error) {
-        rollbar.getErrors('Error set new channel', error);
         console.log(error);
+        toast.error(t('notifications.networkError'));
+        rollbar.getErrors('Error set new channel', error);
       } finally {
         setIsButtonDisabled(false);
       }

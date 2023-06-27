@@ -8,39 +8,35 @@ import useSocket from '../hooks/useSocket.jsx';
 import getSchema from '../schems.js';
 import useRoll from '../hooks/useRoll.jsx';
 // eslint-disable-next-line import/no-cycle
-import { setModalInfo } from '../slices/sliceModals.js';
+import { closeModal } from '../slices/sliceModals.js';
 
 const Rename = () => {
   const rollbar = useRoll();
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const dispatch = useDispatch();
   const inputRef = useRef();
-  const socket = useSocket();
+  const { renameChannel } = useSocket();
   const dataChat = useSelector((state) => state.data);
   const { channels: { channels }, modals: { modalInfo } } = dataChat;
-  const onHide = () => dispatch(setModalInfo({ type: '', item: {} }));
+  const onHide = () => dispatch(closeModal());
   const { t } = useTranslation();
-  const { item } = modalInfo;
+  const { selectedChannel } = modalInfo;
   const formik = useFormik({
     validationSchema: getSchema('rename', t)(channels.map((chanel) => chanel.name)),
     initialValues: {
-      name: item.name,
-      id: item.id,
+      name: selectedChannel.name,
+      id: selectedChannel.id,
     },
     initialErrors: {},
     initialTouched: {},
     onSubmit: async ({ name, id }) => {
       try {
         setIsButtonDisabled(true);
-        await socket.emit('renameChannel', { id, name }, ({ status: s }) => {
-          if (s !== 'ok') {
-            toast.error(t('notifications.errors'));
-            rollbar.getErrors('Error network rename channel', s);
-          }
-        });
+        await renameChannel({ id, name });
         onHide();
       } catch (error) {
         console.log(error);
+        toast.error(t('notifications.errors'));
         rollbar.getErrors('Error rename channel', error);
       } finally {
         setIsButtonDisabled(false);
